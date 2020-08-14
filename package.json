@@ -1,0 +1,26 @@
+{
+  "name": "coffeecrisisviz",
+  "version": "1.0.0",
+  "description": "The global coffee crisis is coming, a D3.js visualization inspired by a Vox story.",
+  "main": "index.js",
+  "scripts": {
+    "server": "live-server",
+    "watch:sass": "node-sass static/scss/main.scss static/css/style.css -w",
+    "start": "npm-run-all --parallel server watch:sass"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rockdonald2/coffeeCrisisViz.git"
+  },
+  "author": "Lukács Zsolt",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rockdonald2/coffeeCrisisViz/issues"
+  },
+  "homepage": "https://github.com/rockdonald2/coffeeCrisisViz#readme",
+  "devDependencies": {
+    "live-server": "^1.2.1",
+    "node-sass": "^4.14.1",
+    "npm-run-all": "^4.1.5"
+  }
+}

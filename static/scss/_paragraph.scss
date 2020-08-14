@@ -1,0 +1,39 @@
+.paragraph {
+    text-align: justify;
+    margin-top: 5rem;
+
+    &--text {
+        font-size: 1.6rem;
+        max-width: 30rem;
+        line-height: 1.75;
+    }
+}
+
+.emphasize {
+    font-weight: 700;
+    color: $emphasize-color;
+    font-size: 1.8rem;
+}
+
+#par1 {
+    grid-column: 4 / -1;
+
+    .paragraph--text {
+        margin: 0 auto;
+
+        &:nth-of-type(even) {
+            padding-top: 2rem;
+            text-indent: 2rem;
+        }
+    }
+}
+
+#par2 {
+    grid-column: 1 / -2;
+
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-evenly;
+
+    text-indent: 2rem;
+}
