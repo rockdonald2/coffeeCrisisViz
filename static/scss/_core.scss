@@ -14,10 +14,12 @@
 
 ::-moz-selection {
     background-color: rgba($selection-color, .5);
+    color: $bg-color;
 }
 
 ::selection {
     background-color: rgba($selection-color, .5);
+    color: $bg-color;
 }
 
 html {

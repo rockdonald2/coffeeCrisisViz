@@ -1,6 +1,4 @@
 .chart {
-    grid-column: 1 / 4;
-    grid-row: 1 / 3;
     width: 100%;
 }
 
@@ -46,4 +44,25 @@
     }
 }
 
-#majorProducers {}
+#majorProducers {
+    grid-column: 1 / 4;
+    grid-row: 1 / 3;
+}
+
+#pricesPaidToGrowers {
+    grid-column: 1 / -1;
+    grid-row: span 3;
+    height: 60rem;
+}
+
+#retailPrices {
+    grid-column: 1 / -1;
+    grid-row: span 3;
+    height: 60rem;
+}
+
+#historicalPrices {
+    grid-column: 2 / -1;
+    grid-row: span 3;
+    height: 60rem;
+}

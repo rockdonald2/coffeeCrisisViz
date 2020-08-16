@@ -1,20 +1,15 @@
 (function (viz) {
     'use strict';
-
-    const chartContainer = d3.select('#pricesPaidToGrowers');
+    const chartContainer = d3.select('#retailPrices');
     const boundingRect = chartContainer.node().getBoundingClientRect();
     const margin = {
-        'top': 150,
+        'top': 125,
         'left': 50,
         'right': 50,
         'bottom': 50
     };
     const width = boundingRect.width - margin.left - margin.right;
     const height = boundingRect.height - margin.top - margin.bottom;
-
-    /* Types: Columbian Milds, Other Milds, Brazilian Naturals, Robustas */
-    const types = ['Colombian Milds', 'Other Milds', 'Brazilian Naturals', 'Robustas'];
-    let currentType = 'Colombian Milds';
 
     /* for future use */
     let years = null;
@@ -125,11 +120,11 @@
         }
     }
 
-    viz.initLineChart1 = function () {
-        scaleTime.domain(d3.extent(viz.data.pricesPaidToGrowers, function (d) {
+    viz.initLineChart2 = function () {
+        scaleTime.domain(d3.extent(viz.data.retailPrices, function (d) {
             return d.Year;
         }));
-        scaleValue.domain([0, d3.max(viz.data.pricesPaidToGrowers, function (d) {
+        scaleValue.domain([0, d3.max(viz.data.retailPrices, function (d) {
             return d.Value;
         })]).nice();
 
@@ -158,7 +153,7 @@
                 });
 
             const yAxis = svg.append('g').attr('class', 'y-axis').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
-            const yTicks = yAxis.selectAll('.y-tick').data(d3.range(0, 501, 100))
+            const yTicks = yAxis.selectAll('.y-tick').data(d3.range(0, 23, 2.5))
                 .enter().append('g').attr('class', 'y-tick')
                 .call(function (g) {
                     g.append('line').attr('x1', 0).attr('x2', width)
@@ -193,93 +188,29 @@
         const makeLegend = function () {
             const legend = svg.append('g').attr('class', 'legend');
 
-            const labelGroup = legend.append('g').attr('class', 'labelGroup').attr('transform', 'translate(' + margin.left + ', ' + margin.top / 2 + ')')
+            const labelGroup = legend.append('g').attr('class', 'labelGroup').attr('transform', 'translate(' + margin.left + ', ' + margin.top / 3 + ')')
                 .call(function (g) {
-                    g.append('text').text('Prices paid to growers by coffee plant type')
+                    g.append('text').text('Retail prices of roasted coffee in selected importing countries')
                         .style('font-size', '2.6rem').style('font-weight', 700);
                 })
                 .call(function (g) {
-                    g.append('text').text('Measured in cents per pounds | 1990-2018').style('font-size', '1.3rem').style('font-weight', 700)
+                    g.append('text').text('Measured in dollars per pounds | 1990-2018').style('font-size', '1.3rem').style('font-weight', 700)
                         .attr('opacity', .5).attr('y', 32);
-                });
-
-            const typeGroup = legend.append('g').attr('class', 'typeGroup').attr('transform', 'translate(' + (width / 2 + 25) + ', ' + (margin.top / 2 - 12.5) + ')');
-            typeGroup.selectAll('type').data(types).enter().append('g')
-                .attr('id', function (d) {
-                    return d.split(' ')[0];
-                })
-                .style('cursor', 'pointer')
-                .call(function (g) {
-                    g.append('rect').attr('width', 16).attr('height', 16).attr('fill', function (d) {
-                            if (d === currentType) return '#7f2c2c';
-
-                            return '#666';
-                        })
-                        .attr('x', function (d, i) {
-                            if (i === 2) return i * 160;
-                            else if (i === 3) return i * 170;
-                            return i * 175;
-                        });
-                })
-                .call(function (g) {
-                    g.append('text').text(function (d) {
-                            return d;
-                        })
-                        .attr('fill', function (d) {
-                            if (d === currentType) return '#7f2c2c';
-
-                            return '#222';
-                        })
-                        .attr('transform', function (d, i) {
-                            if (i === 2) return 'translate(' + (i * 160 + 25) + ', 8)';
-                            else if (i === 3) return 'translate(' + (i * 170 + 25) + ', 8)';
-                            else return 'translate(' + (i * 175 + 25) + ', 8)';
-                        }).attr('alignment-baseline', 'middle').attr('dy', '.16em')
-                        .style('font-size', '1.5rem')
-                        .style('font-weight', 700);
-                })
-                .on('mouseover', function (d) {
-                    const textLabel = d3.select(this).select('text');
-                    const rectLabel = d3.select(this).select('rect');
-
-                    textLabel.attr('fill', '#7f2c2c');
-                    rectLabel.attr('fill', '#7f2c2c');
-                })
-                .on('mouseleave', function (d) {
-                    if (d !== currentType) {
-                        d3.select(this).select('text').attr('fill', '#222')
-                        d3.select(this).select('rect').attr('fill', '#666')
-                    }
-                })
-                .on('click', function (d) {
-                    legend.select('.typeGroup g#' + currentType.split(' ')[0])
-                        .call(function (g) {
-                            g.select('text').attr('fill', '#222');
-                        })
-                        .call(function (g) {
-                            g.select('rect').attr('fill', '#666');
-                        });
-
-                    currentType = d;
-
-                    viz.updateLineChart1(currentType);
                 });
         }
 
         makeLegend();
 
-        viz.updateLineChart1(currentType);
+        viz.updateLineChart2();
     }
 
     /* chartHolder */
     const chartHolder = svg.append('g').attr('class', 'chartHolder').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
-    viz.updateLineChart1 = function (type) {
+    viz.updateLineChart2 = function () {
         const data = d3.nest().key(function (d) {
             return d.Code;
-        }).entries(viz.data.pricesPaidToGrowers.filter(function (d) {
-            return d.Type === type;
-        }));
+        }).entries(viz.data.retailPrices);
 
         const lines = chartHolder.selectAll('.line').data(data, function (d) {
             return d.key;
@@ -301,9 +232,6 @@
             })
             .attr('opacity', 1);
 
-        lines.exit().transition().duration(viz.TRANS_DURATION).attr('opacity', 0).remove();
-
         mouseRect.call(hover, chartHolder.selectAll('.line'), data);
     }
-
 }(window.viz = window.viz || {}));
