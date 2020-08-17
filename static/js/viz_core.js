@@ -17,5 +17,9 @@
         viz.initLineChart2();
         /* negyedik ábra: historical-prices vonaldiagram */
         viz.initLineChart3();
+        /* ötödik ábra: exporter precipitation dot-plot */
+        viz.initDotPlot();
+        /* hatodik ábra: kolumbiai GDP stacked-bar-chart*/
+        viz.initStackedChart();
     }
 }(window.viz = window.viz || {}));

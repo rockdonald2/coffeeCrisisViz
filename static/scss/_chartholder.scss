@@ -66,3 +66,31 @@
     grid-row: span 3;
     height: 60rem;
 }
+
+#coffeeAggreement {
+    grid-column: 2 / -1;
+    grid-row: span 3;
+}
+
+#exporterPercAndTemp {
+    grid-column: 1 / 5;
+    height: 120rem;
+}
+
+#colombiaGdp {
+    grid-column: 2 / -1;
+    grid-row: 22 / span 2;
+    height: 63rem;
+
+    .tooltip--info {
+        padding: 0;
+
+        & p:not(:first-of-type) {
+            margin-top: 0;
+        }
+
+        & p:nth-of-type(1) {
+            color: $bg-color;
+        }
+    }
+}

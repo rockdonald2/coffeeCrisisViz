@@ -27,7 +27,7 @@
     let years = d3.range(1990, 2019);
     let currentYear = 2018;
     const sliderTime = d3.sliderBottom().min(d3.min(years)).max(d3.max(years))
-        .step(1).width(310).tickFormat(d3.format('d'))
+        .step(1).width(340).tickFormat(d3.format('d'))
         .handle('M7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,-7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,7.978845608028654,0')
         .tickValues([]).default(new Date(2018, 0, 1))
         .on('onchange', function (d) {
@@ -111,14 +111,15 @@
                 .attr('stroke-width', .5)
                 .attr('stroke-opacity', .5)
                 .attr('stroke-linejoin', 'round')
-                .attr('stroke-linecap', 'round');
+                .attr('stroke-linecap', 'round')
+                .attr('stroke-dasharray', '.75rem');
 
             graticuleTextHolder.selectAll('text').data(graticule.lines())
                 .enter().append('text').text(function (d) {
                     const c = d.coordinates;
 
                     if (c[0][1] === 25 || c[0][1] === -30) {
-                        return (c[0][1] < 0) ? -c[0][1] + "S" : c[0][1] + "N";;
+                        return (c[0][1] < 0) ? -c[0][1] + "°S" : c[0][1] + "°N";
                     }
                 })
                 .attr('class', 'graticule-label')
@@ -197,14 +198,15 @@
                 .on('mouseover', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
                 })
-                .on('mousemove', function () {
+                .on('mouseenter', function () {
                     tooltip.select('.tooltip--heading')
                         .html(viz.data.codes[d.Code])
                         .style('background-color', colorScale(d.Value)).style('color', '#fafafa');
                     tooltip.select('.tooltip--info')
                         .html('Their total production in ' + year + ' was <span class="tooltip--emphasize">' + (d.Value.toFixed(2)) + '</span> thousands 60kg bags.');
-
-                    if (d3.event.pageX >= width * 0.9) {
+                })
+                .on('mousemove', function () {
+                    if (d3.event.pageX >= width) {
                         tooltip.style('left', (d3.event.pageX - parseInt(tooltip.style('width')) - 20) + 'px');
                     } else {
                         tooltip.style('left', (d3.event.pageX + 20) + 'px');

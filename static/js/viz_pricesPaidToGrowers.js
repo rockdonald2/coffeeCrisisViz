@@ -203,7 +203,7 @@
                         .attr('opacity', .5).attr('y', 32);
                 });
 
-            const typeGroup = legend.append('g').attr('class', 'typeGroup').attr('transform', 'translate(' + (width / 2 + 25) + ', ' + (margin.top / 2 - 12.5) + ')');
+            const typeGroup = legend.append('g').attr('class', 'typeGroup').attr('transform', 'translate(' + (width / 2 + 40) + ', ' + (margin.top / 2 - 15) + ')');
             typeGroup.selectAll('type').data(types).enter().append('g')
                 .attr('id', function (d) {
                     return d.split(' ')[0];
@@ -234,7 +234,7 @@
                             if (i === 2) return 'translate(' + (i * 160 + 25) + ', 8)';
                             else if (i === 3) return 'translate(' + (i * 170 + 25) + ', 8)';
                             else return 'translate(' + (i * 175 + 25) + ', 8)';
-                        }).attr('alignment-baseline', 'middle').attr('dy', '.16em')
+                        }).attr('alignment-baseline', 'middle').attr('dy', '.09em')
                         .style('font-size', '1.5rem')
                         .style('font-weight', 700);
                 })
@@ -255,8 +255,6 @@
                     legend.select('.typeGroup g#' + currentType.split(' ')[0])
                         .call(function (g) {
                             g.select('text').attr('fill', '#222');
-                        })
-                        .call(function (g) {
                             g.select('rect').attr('fill', '#666');
                         });
 
