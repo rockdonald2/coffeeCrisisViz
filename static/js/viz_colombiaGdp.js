@@ -20,17 +20,23 @@
 
     /* skálák */
     /* years: 2009->2019 */
-    const sectors = ['Industry', 'Services', 'Agriculture']
-    const scaleYear = d3.scaleBand().domain(d3.range(2009, 2020, 1)).range([0, width]).padding(0.05);
+    const sectors = ['Services', 'Industry', 'Agriculture']
+    const scaleYear = d3.scaleBand().domain(d3.range(2009, 2020, 1)).range([0, width]).paddingOuter(0).paddingInner(.05);
     const scalePerc = d3.scaleLinear().rangeRound([height, 0]);
-    const colors = d3.schemePaired.slice(0, 3);
+    const colors = d3.schemeTableau10.slice(0, 3);
     const colorScale = d3.scaleOrdinal().domain(sectors).range(colors);
 
     /* tooltip */
     const tooltip = chartContainer.select('.tooltip');
 
     viz.initStackedChart = function () {
-        const data = viz.data.colombiaGdp;
+        const columns = d3.keys(viz.data.colombiaGdp[0]);
+        const data = d3.stack().keys(columns.slice(1))(viz.data.colombiaGdp);
+        data.forEach(function (d) {
+                d.forEach(function (v) {
+                    v.key = d.key;
+                });
+            });
 
         /* tengelyek */
         const makeAxis = function () {
@@ -69,10 +75,10 @@
                     g.append('text').text(function (d) {
                             return d.toFixed(1) * 100 + '%';
                         }).attr('x', -10).attr('y', scalePerc)
-                        .attr('dy', '.05em')
-                        .attr('alignment-baseline', 'middle')
+                        .attr('dy', '.32em')
                         .attr('text-anchor', 'end')
-                        .attr('opacity', .75).style('font-size', '1.5rem').style('font-weight', 700);
+                        .attr('opacity', .75).style('font-size', '1.5rem').style('font-weight', 700)
+                        .attr('fill', '#222');
                 });
         }
 
@@ -95,13 +101,13 @@
                 .enter().append('g').attr('class', 'group')
                 .call(function (g) {
                     g.append('circle').attr('r', 5).attr('cx', function (d, i) {
-                        return i * 150;
+                        return i * 125;
                     }).attr('fill', colorScale);
                     g.append('text').text(function (d) {
                         return d;
                     }).attr('x', function (d, i) {
-                        return i * 150 + 10;
-                    }).attr('alignment-baseline', 'middle').attr('dy', '.1em')
+                        return i * 125 + 10;
+                    }).attr('dy', '.35em')
                     .style('font-size', '1.3rem').style('font-weight', 700).attr('opacity', .5);
                 });
         }
@@ -109,52 +115,46 @@
         makeLegend();
 
         const makeChart = function () {
-            const groups = chartHolder.selectAll('.group').data(data, function (d) {
-                return d.Year;
-            });
+            const groups = chartHolder.selectAll('.group').data(data);
 
             groups.enter().append('g').attr('class', 'group')
-                .attr('transform', function (d) {
-                    return 'translate(' + scaleYear(d.Year) + ', 0)';
+                .attr('fill', function (d) {
+                    return colorScale(d.key);
                 })
-                .call(function (g) {
-                    g.append('rect').attr('width', scaleYear.bandwidth()).attr('height', function (d) {
-                        return height - scalePerc(d.Agriculture);
-                    }).attr('y', function (d) {
-                        return scalePerc(d.Agriculture);
-                    }).attr('fill', function (d) {
-                        return colorScale(sectors[2]);
-                    });
+                .selectAll('rect')
+                .data(function (d) {
+                    return d;
+                }).enter().append('rect')
+                .attr('class', function (d) {
+                    return 'rect rect__' + d.key;
                 })
-                .call(function (g) {
-                    g.append('rect').attr('width', scaleYear.bandwidth()).attr('height', function (d) {
-                        return height - scalePerc(d.Industry);
-                    }).attr('y', function (d) {
-                        return scalePerc(d.Industry) - (height - scalePerc(d.Agriculture));
-                    }).attr('fill', function (d) {
-                        return colorScale(sectors[0]);
-                    });
+                .attr('x', function (d) {
+                    return scaleYear(d.data.Year);
                 })
-                .call(function (g) {
-                    g.append('rect').attr('width', scaleYear.bandwidth()).attr('height', function (d) {
-                        return height - scalePerc(d.Services);
-                    }).attr('y', function (d) {
-                        return scalePerc(d.Services) - (height - scalePerc(d.Agriculture)) - (height - scalePerc(d.Industry));
-                    }).attr('fill', function (d) {
-                        return colorScale(sectors[1]);
-                    });
+                .attr('y', function (d) {
+                    return scalePerc(d[1]);
+                })
+                .attr('width', scaleYear.bandwidth())
+                .attr('height', function (d) {
+                    return scalePerc(d[0]) - scalePerc(d[1]);
                 })
                 .on('mouseenter', function (d) {
-                    tooltip.select('.tooltip--info')
-                        .html(
-                            '<p style="background-color: ' + colors[1] + '; padding: 1rem; border-top-left-radius: 4px; border-top-right-radius: 4px;"">Services: <span style="font-weight: 700">' + (d.Services * 100).toFixed(2) + '</span>%</p>'
-                            +
-                            '<p style="background-color: ' + colors[0] + '; padding: 1rem;">Industry: <span style="font-weight: 700">' + (d.Industry * 100).toFixed(2) + '</span>%</p>'
-                            +
-                            '<p style="background-color: ' + colors[2] + '; padding: 1rem; border-bottom-left-radius: 4px; border-bottom-right-radius: 4px;">Agriculture: <span style="font-weight: 700">' + (d.Agriculture * 100).toFixed(2) + '</span>%</p>'
-                        );
+                    chartHolder.selectAll('.rect').transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 0.5);
+                    chartHolder.selectAll('.rect__' + d.key).transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 1);
+
+                    tooltip.select('.tooltip--heading').html(d.data.Year);
+
+                    tooltip.select('p.tooltip--info__services span.tooltip--info__text').html((d.data.Services * 100).toFixed(2) + '%');
+                    tooltip.select('p.tooltip--info__services span.tooltip--info__circle').style('background-color', colorScale('Services'));
+
+                    tooltip.select('p.tooltip--info__industry span.tooltip--info__text').html((d.data.Industry * 100).toFixed(2) + '%');
+                    tooltip.select('p.tooltip--info__industry span.tooltip--info__circle').style('background-color', colorScale('Industry'));
+
+                    tooltip.select('p.tooltip--info__agriculture span.tooltip--info__text').html((d.data.Agriculture * 100).toFixed(2) + '%');
+                    tooltip.select('p.tooltip--info__agriculture span.tooltip--info__circle').style('background-color', colorScale('Agriculture'));
                 })
                 .on('mouseleave', function (d) {
+                    chartHolder.selectAll('.rect').transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 1);
                     tooltip.style('left', '-9999px');
                 })
                 .on('mousemove', function (d) {

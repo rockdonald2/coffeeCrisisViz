@@ -60,8 +60,8 @@
             .attr('y', -10);
 
         const valueLines = svg.append('g').attr('display', 'none').style('pointer-events', 'none');
-        valueLines.append('line').attr('id', 'x-line').attr('stroke', '#222').attr('stroke-width', .5).attr('opacity', .75);
-        valueLines.append('line').attr('id', 'y-line').attr('stroke', '#222').attr('stroke-width', .5).attr('opacity', .75);
+        valueLines.append('line').attr('id', 'x-line').attr('stroke', '#222').attr('stroke-width', 1).attr('opacity', .75);
+        valueLines.append('line').attr('id', 'y-line').attr('stroke', '#222').attr('stroke-width', 1).attr('opacity', .75);
         valueLines.append('text').attr('id', 'x-value').style('font-size', '1.5rem').style('font-weight', 700).attr('text-anchor', 'middle');
         valueLines.append('text').attr('id', 'y-value').style('font-size', '1.5rem')
             .style('font-weight', 700).attr('alignment-baseline', 'middle').attr('text-anchor', 'middle');
@@ -172,14 +172,13 @@
                     g.append('text').text(function (d) {
                             return d;
                         }).attr('y', scaleValue)
-                        .attr('x', -20)
+                        .attr('x', -10)
                         .style('font-size', '1.5rem')
                         .style('font-weight', 700)
                         .attr('fill', '#222')
                         .attr('opacity', .75)
-                        .attr('alignment-baseline', 'middle')
-                        .attr('text-anchor', 'middle')
-                        .attr('dy', '.05em');
+                        .attr('text-anchor', 'end')
+                        .attr('dy', '.32em');
                 });
         }
 

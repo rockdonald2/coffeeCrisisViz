@@ -4,7 +4,7 @@
     const chartContainer = d3.select('#historicalPrices');
     const boundingRect = chartContainer.node().getBoundingClientRect();
     const margin = {
-        'top': 150,
+        'top': 135,
         'left': 75,
         'right': 25,
         'bottom': 50
@@ -72,7 +72,7 @@
                 .attr('stroke-linecap', 'round')
                 .attr('stroke-width', .75)
                 .attr('stroke-opacity', .75);
-            const xTicks = xAxis.selectAll('.x-tick').data(d3.timeYear.every(6).range(scaleTime.domain()[0], scaleTime.domain()[1]))
+            const xTicks = xAxis.selectAll('.x-tick').data(d3.timeYear.every(5).range(scaleTime.domain()[0], scaleTime.domain()[1]))
                 .enter().append('g').attr('class', 'x-tick')
                 .call(function (g) {
                     g.append('text').text(function (d) {
@@ -107,14 +107,13 @@
                     g.append('text').text(function (d) {
                             return d;
                         }).attr('y', scalePrice)
-                        .attr('x', -20)
+                        .attr('x', -10)
                         .style('font-size', '1.5rem')
                         .style('font-weight', 700)
                         .attr('fill', '#222')
                         .attr('opacity', .75)
-                        .attr('alignment-baseline', 'middle')
-                        .attr('text-anchor', 'middle')
-                        .attr('dy', '.05em');
+                        .attr('text-anchor', 'end')
+                        .attr('dy', '.32em');
                 });
         }
 
@@ -124,7 +123,7 @@
         const makeLegend = function () {
             const legend = svg.append('g').attr('class', 'legend');
 
-            const labelGroup = legend.append('g').attr('class', 'labelGroup').attr('transform', 'translate(' + margin.left + ', ' + margin.top / 2 + ')')
+            const labelGroup = legend.append('g').attr('class', 'labelGroup').attr('transform', 'translate(' + margin.left + ', ' + 55 + ')')
                 .call(function (g) {
                     g.append('text').text('Historical retail prices of coffee in the U.S.')
                         .style('font-size', '2.6rem').style('font-weight', 700);

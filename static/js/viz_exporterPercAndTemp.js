@@ -3,7 +3,7 @@
 
     const chartContainer = d3.select('#exporterPercAndTemp');
     const margin = {
-        'top': 250,
+        'top': 220,
         'left': 50,
         'right': 50,
         'bottom': 50
@@ -77,7 +77,7 @@
             .attr('y1', -10).attr('y2', height + 25).attr('x1', width).attr('x2', width)
             .merge(ticks)
             .transition().duration(viz.TRANS_DURATION)
-            .attr('opacity', 1)
+            .attr('opacity', 0.75)
             .attr('y1', -10).attr('y2', height + 25).attr('x1', currentScale).attr('x2', currentScale)
             .attr('stroke', '#666').attr('stroke-opacity', .75).attr('stroke-width', 1.25)
             .attr('stroke-dasharray', '.75rem');
@@ -124,7 +124,7 @@
         }));
 
         const makeLegend = function () {
-            const legend = svg.append('g').attr('class', 'legend').attr('transform', 'translate(' + margin.left + ', ' + 75 + ')');
+            const legend = svg.append('g').attr('class', 'legend').attr('transform', 'translate(' + margin.left + ', ' + 50 + ')');
 
             const labelGroup = legend.append('g').attr('class', 'labelGroup')
                 .call(function (g) {
@@ -150,10 +150,10 @@
                 .call(function (g) {
                     g.append('text').text(function (d) {
                             return d;
-                        }).style('font-size', '1.3rem').attr('alignment-baseline', 'middle')
+                        }).style('font-size', '1.3rem')
                         .attr('x', function (d, i) {
                             return i * 100 + 10;
-                        }).attr('dy', '.11em').attr('opacity', .5).style('font-weight', 700);
+                        }).attr('dy', '.32em').attr('opacity', .5).style('font-weight', 700);
                 });
 
             const selectionGroup = legend.append('g').attr('class', 'selectionGroup')
@@ -181,8 +181,7 @@
                             return i * 100 + 15;
                         })
                         .attr('y', 5)
-                        .attr('alignment-baseline', 'middle')
-                        .attr('dy', '.11em').style('font-weight', 700)
+                        .attr('dy', '.36em').style('font-weight', 700)
                         .attr('fill', function (d) {
                             if (d === currentPlot) return '#7f2c2c';
                             else return '#222';
@@ -199,6 +198,8 @@
                     }
                 })
                 .on('click', function (d) {
+                    if (d === currentPlot) return;
+
                     legend.select('g#' + currentPlot)
                         .call(function (g) {
                             g.select('text').attr('fill', '#222');
@@ -255,7 +256,6 @@
                 g.select('text').text(function (d) {
                         return viz.data.codes[d.key];
                     })
-                    .attr('alignment-baseline', 'middle')
                     .attr('text-anchor', 'end')
                     .style('font-size', '1.2rem')
                     .transition().duration(viz.TRANS_DURATION)
@@ -263,7 +263,8 @@
                         return currentScale(d3.min(d.values, function (d) {
                             return d.Value;
                         })) - 10;
-                    });
+                    })
+                    .attr('dy', '.35em');
 
                 const dots = g.select('g').selectAll('.dot').data(function (d) {
                     return d.values;

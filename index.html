@@ -4,8 +4,16 @@
     <head>
         <meta charset="UTF-8">
         <title>The global coffee crisis</title>
-        <link rel="stylesheet"
-            href="static/css/style.css">
+        <link rel="icon"
+            href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22
+                viewBox=%220
+                0
+                100
+                100%22><text y=%22.9em%22
+                    font-size=%2290%22>📉</text></svg>">
+    </head>
+    <link rel="stylesheet"
+        href="static/css/style.css">
     </head>
 
     <body>
@@ -105,13 +113,14 @@
                 </p>
                 <p class="paragraph--text">
                     The idea was that these smaller farms would grow other crops along with coffee to sustain themselves through
-                    price fluctuations. In Colombia, the government to support the new small farms, the government had created
+                    price fluctuations. In Colombia, the government to support the new small farms, had created
                     Fedecafe.
                 </p>
                 <p class="paragraph--text">
-                    This agency that would organize and represent the farmers, by negotiating fair prices and favorable deals with
+                    This agency would organize and represent the farmers, by negotiating fair prices and favorable deals with
                     other countries. The most important deal was in 1962, when Colombia signed the International Coffee Agreement
-                    with 69 other countries, and set a price minimum for export.
+                    with 69 other countries, and set a price minimum for export. The agreement changed many times throughout the
+                    decades, but the participating countries remained more or less the same.
                 </p>
             </section>
             <!-- paragraph end -->
@@ -333,7 +342,7 @@
             <!-- paragraph end -->
             <!-- chart start -->
             <section class="chart"
-                id="coffeeAggreement">
+                id="coffeeAgreement">
                 <div class="tooltip">
                     <h3 class="tooltip--heading"></h3>
                     <div class="tooltip--info"></div>
@@ -480,6 +489,22 @@
                 id="exporterPercAndTemp">
             </section>
             <!-- chart end -->
+            <!-- chart start -->
+            <section class="chart"
+                id="colombiaGdp">
+                <div class="tooltip">
+                    <h3 class="tooltip--heading"></h3>
+                    <div class="tooltip--info">
+                        <p class="tooltip--info__services"><span class="tooltip--info__circle"></span>Services <span
+                                class="tooltip--info__text"></span></p>
+                        <p class="tooltip--info__industry"><span class="tooltip--info__circle"></span>Industry <span
+                                class="tooltip--info__text"></span></p>
+                        <p class="tooltip--info__agriculture"><span class="tooltip--info__circle"></span>Agriculture <span
+                                class="tooltip--info__text"></span></p>
+                    </div>
+                </div>
+            </section>
+            <!-- chart end -->
             <!-- paragraph start -->
             <section class="paragraph"
                 id="par6">
@@ -496,13 +521,36 @@
                 </p>
             </section>
             <!-- paragraph end -->
+            <!-- paragraph start -->
+            <section class="paragraph"
+                id="par9">
+                <p class="paragraph--text">
+                    Since 2013, the amount of land used to grow coffee in Colombia has fallen by more than 7%. The zona Cafetera
+                    is projected to warm by .3 degress per decade and see more extreme weather.
+                </p>
+                <p class="paragraph--text">
+                    There are several ways farmers can protect their coffee plants from the effects of climate change. Shade trees
+                    keep the plants cool and stabilize the soil.
+                </p>
+                <p class="paragraph--text">
+                    They can move their crops uphill, where it's cooler. They can also switch to more resistant varieties of
+                    coffee plants. In the 1980s the coffee agreement fell apart along with the price minimum.
+                </p>
+                <p class="paragraph--text">
+                    Since then, more countries, especially some in Asia, have increasingly flooded the market with cheap coffee.
+                    It sparked a crisis around 2009, when extreme weather and coffee rust decimated Colombia's crop.
+                </p>
+            </section>
+            <!-- paragraph end -->
             <!-- chart start -->
             <section class="chart"
-                id="colombiaGdp">
-                <div class="tooltip">
-                    <div class="tooltip--info">
-                    </div>
-                </div>
+                id="colombiaAreaChart">
+
+            </section>
+            <!-- chart end -->
+            <!-- chart start -->
+            <section class="chart"
+                id="colombianInternalPrices">
             </section>
             <!-- chart end -->
         </main>
@@ -533,11 +581,15 @@
             defer></script>
         <script src="static/js/viz_historicalPrices.js"
             defer></script>
-        <script src="static/js/viz_coffeeAggreement.js"
+        <script src="static/js/viz_coffeeAgreement.js"
             defer></script>
         <script src="static/js/viz_exporterPercAndTemp.js"
             defer></script>
         <script src="static/js/viz_colombiaGdp.js"
+            defer></script>
+        <script src="static/js/viz_colombiaAreaChart.js"
+            defer></script>
+        <script src="static/js/viz_colombianInternalPrices.js"
             defer></script>
         <script src="static/js/viz_main.js"
             defer></script>

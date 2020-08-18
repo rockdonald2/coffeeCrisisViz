@@ -10,7 +10,7 @@
     /* elindítja a vizualizáció betöltését */
     viz.init = function () {
         /* első ábra: major-producers térkép */
-        viz.initMap();
+        viz.initMap1();
         /* második ábra: prices-paid-to-growers vonaldiagram */
         viz.initLineChart1();
         /* harmadik ábra: retail-prices vonaldiagram */
@@ -21,5 +21,11 @@
         viz.initDotPlot();
         /* hatodik ábra: kolumbiai GDP stacked-bar-chart*/
         viz.initStackedChart();
+        /* hetedik ábra: coffee-aggreement térkép */
+        viz.initMap2();
+        /* nyolcadik ábra: kolumbiai termelés területdiagram */
+        viz.initAreaChart();
+        /* kilencedik ábra: kolumbiai belső árak vonaldiagram */
+        viz.initLineChart4();
     }
 }(window.viz = window.viz || {}));

@@ -64,12 +64,13 @@
 #historicalPrices {
     grid-column: 2 / -1;
     grid-row: span 3;
-    height: 60rem;
+    height: 56.5rem;
 }
 
-#coffeeAggreement {
+#coffeeAgreement {
     grid-column: 2 / -1;
-    grid-row: span 3;
+    grid-row: span 2;
+    height: 65rem;
 }
 
 #exporterPercAndTemp {
@@ -79,18 +80,61 @@
 
 #colombiaGdp {
     grid-column: 2 / -1;
-    grid-row: 22 / span 2;
+    grid-row: 21 / span 2;
     height: 63rem;
 
-    .tooltip--info {
-        padding: 0;
+    .tooltip {
+        width: 18rem;
+        max-width: unset;
 
-        & p:not(:first-of-type) {
-            margin-top: 0;
+        &--heading {
+            border-bottom: 1px solid rgba(#666, .5);
         }
 
-        & p:nth-of-type(1) {
-            color: $bg-color;
+        &--info {
+            padding: 1rem;
+
+            & p {
+                margin-top: 1rem;
+                text-align: right;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            & p:first-of-type {
+                margin-top: 0;
+            }
+
+            &__circle {
+                width: 8px;
+                height: 8px;
+                border-radius: 50%;
+                background-color: #222;
+                display: inline-block;
+            }
+
+            &__text {
+                font-weight: 700;
+            }
         }
     }
+}
+
+#colombiaAreaChart {
+    grid-column: 1 / -1;
+    grid-row: span 2;
+    height: 50rem;
+}
+
+#colombianInternalPrices {
+    grid-column: 1 / -1;
+    grid-row: span 1;
+    height: 32.5rem;
+}
+
+#colombianExportPrices {
+    grid-column: 1 / -1;
+    grid-row: span 1;
+    height: 32.5rem;
 }

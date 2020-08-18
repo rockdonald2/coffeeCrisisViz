@@ -6,7 +6,7 @@
     const margin = {
         'top': 100,
         'left': 50,
-        'right': 50,
+        'right': 0,
         'bottom': 25
     };
 
@@ -29,10 +29,10 @@
     const sliderTime = d3.sliderBottom().min(d3.min(years)).max(d3.max(years))
         .step(1).width(340).tickFormat(d3.format('d'))
         .handle('M7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,-7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,7.978845608028654,0')
-        .tickValues([]).default(new Date(2018, 0, 1))
+        .tickValues([]).default(2018)
         .on('onchange', function (d) {
             currentYear = d;
-            viz.updateMap(currentYear);
+            viz.updateMap1(currentYear);
         });
 
     /* path */
@@ -48,7 +48,7 @@
     const tooltip = chartContainer.select('.tooltip');
 
     /* térkép létrehozása */
-    viz.initMap = function () {
+    viz.initMap1 = function () {
         const makeLegend = function () {
             const legend = svg.append('g').attr('class', 'legend').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
@@ -59,18 +59,17 @@
                 })
                 .call(function (g) {
                     g.append('text').text('Major coffee producers')
-                        .attr('alignment-baseline', 'middle')
                         .attr('x', 48).attr('y', 16)
-                        .attr('dy', '.11em')
+                        .attr('dy', '.3em')
                         .style('font-size', '2.6rem')
                         .style('font-weight', '700')
                         .style('pointer-events', 'none');
                 })
                 .call(function (g) {
                     g.append('text').text('Measured in thousand 60kg bags')
-                        .attr('alignment-baseline', 'middle')
                         .attr('x', 48).attr('y', 48)
                         .attr('dx', '.11em')
+                        .attr('dy', '.3em')
                         .style('font-size', '1.3rem')
                         .style('font-weight', 700)
                         .attr('opacity', .5)
@@ -81,15 +80,11 @@
                 .attr('transform', 'translate(10, 80)')
                 .call(sliderTime)
                 .call(function (g) {
-                    g.select('.slider .parameter-value text').style('font-size', '1.5rem').style('font-weight', 700).attr('fill', '#222')
+                    g.select('.slider .parameter-value text').style('font-size', '1.4rem').style('font-weight', 700).attr('fill', '#222')
                         .attr('opacity', .75).attr('dy', '.21em');
                 })
                 .call(function (g) {
                     g.selectAll('.slider line').attr('opacity', .75);
-                })
-                .call(function (g) {
-                    g.select('.slider .parameter-value path').attr('fill', '#7f2c2c')
-                        .attr('stroke', 'transparent');
                 });
         }
 
@@ -142,7 +137,7 @@
                     const c = d.coordinates;
                     const p = projection(c[0]);
 
-                    return 'translate(' + (p[0] + width / 2 + 100) + ', ' + (p[1]) + ')';
+                    return 'translate(' + (p[0] + width / 2 + 80) + ', ' + (p[1]) + ')';
                 })
                 .style('font-size', '1.3rem')
                 .style('font-weight', 700);
@@ -184,21 +179,20 @@
             .attr('stroke-linecap', 'round')
             .attr('fill', '#fafafa');
 
-        viz.updateMap(currentYear);
+        viz.updateMap1(currentYear);
     }
 
     /* térkép frissítése */
-    viz.updateMap = function (year) {
+    viz.updateMap1 = function (year) {
         const data = viz.data.majorProducers.filter((e) => {
             return parseInt(d3.timeFormat('%Y')(e.Year)) === year;
         });
 
         data.forEach((d) => {
             mapHolder.select('.country#' + d.Code)
-                .on('mouseover', function () {
-                    d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
-                })
                 .on('mouseenter', function () {
+                    d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
+
                     tooltip.select('.tooltip--heading')
                         .html(viz.data.codes[d.Code])
                         .style('background-color', colorScale(d.Value)).style('color', '#fafafa');
