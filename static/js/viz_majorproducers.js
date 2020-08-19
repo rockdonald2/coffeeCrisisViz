@@ -8,18 +8,10 @@
         'left': 50,
         'right': 0,
         'bottom': 25
-    };
-
+    }
     /* méretek */
     const width = boundingRect.width - margin.left - margin.right;
     const height = boundingRect.height - margin.top - margin.bottom;
-
-    /* svg */
-    const svg = chartContainer.append('svg').attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
-
-    const mapHolder = svg.append('g').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
-        .attr('class', 'mapHolder');
 
     /* skálák */
     const colorScale = d3.scaleThreshold().domain([1, 7500, 15000, 22500, 30000]).range(['#f36d6d', '#aa4b4b', '#7f2c2c', '#642828', '#691d1d', '#5e0606']);
@@ -27,7 +19,7 @@
     let years = d3.range(1990, 2019);
     let currentYear = 2018;
     const sliderTime = d3.sliderBottom().min(d3.min(years)).max(d3.max(years))
-        .step(1).width(340).tickFormat(d3.format('d'))
+        .step(1).width(280).tickFormat(d3.format('d'))
         .handle('M7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,-7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,7.978845608028654,0')
         .tickValues([]).default(2018)
         .on('onchange', function (d) {
@@ -41,43 +33,38 @@
 
     /* graticule */
     const graticule = d3.geoGraticule().step([5, 5]);
-    const graticuleHolder = mapHolder.append('g').attr('class', 'graticuleHolder')
-    const graticuleTextHolder = mapHolder.append('g').attr('class', 'graticuleTextHolder')
 
     /* tooltip */
     const tooltip = chartContainer.select('.tooltip');
 
     /* térkép létrehozása */
     viz.initMap1 = function () {
-        const makeLegend = function () {
-            const legend = svg.append('g').attr('class', 'legend').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+        const dimensions = viz.makeDimensionsObj(width, height, margin);
 
-            const labelGroup = legend.append('g').attr('class', 'labelGroup')
+        /* svg */
+        const svg = viz.addSvg(chartContainer, dimensions);
+
+        /* chartHolder */
+        const chartHolder = viz.addChartHolder(svg, dimensions);
+
+        const graticuleHolder = chartHolder.append('g').attr('class', 'graticuleHolder')
+        const graticuleTextHolder = chartHolder.append('g').attr('class', 'graticuleTextHolder');
+
+        const makeLegend = function () {
+            const legend = viz.makeLegend(svg, dimensions, 'Major coffee producers', 'Measured in thousand 60kg bags')
+                .attr('transform', 'translate(' + (2 * dimensions.margin.left) + ', 100)');
+            
+            legend.select('.titleGroup')
                 .call(function (g) {
-                    g.append('rect').attr('width', 32).attr('height', 32).attr('fill', '#7f2c2c')
+                    g.insert('rect', 'text')
+                        .attr('width', 32).attr('height', 32)
+                        .attr('x', -42).attr('y', -27)
+                        .attr('fill', '#7f2c2c')
                         .attr('opacity', .75);
-                })
-                .call(function (g) {
-                    g.append('text').text('Major coffee producers')
-                        .attr('x', 48).attr('y', 16)
-                        .attr('dy', '.3em')
-                        .style('font-size', '2.6rem')
-                        .style('font-weight', '700')
-                        .style('pointer-events', 'none');
-                })
-                .call(function (g) {
-                    g.append('text').text('Measured in thousand 60kg bags')
-                        .attr('x', 48).attr('y', 48)
-                        .attr('dx', '.11em')
-                        .attr('dy', '.3em')
-                        .style('font-size', '1.3rem')
-                        .style('font-weight', 700)
-                        .attr('opacity', .5)
-                        .attr('fill', '#222');
                 });
 
             const sliderGroup = legend.append('g').attr('class', 'sliderGroup')
-                .attr('transform', 'translate(10, 80)')
+                .attr('transform', 'translate(10, 64)')
                 .call(sliderTime)
                 .call(function (g) {
                     g.select('.slider .parameter-value text').style('font-size', '1.4rem').style('font-weight', 700).attr('fill', '#222')
@@ -86,9 +73,7 @@
                 .call(function (g) {
                     g.selectAll('.slider line').attr('opacity', .75);
                 });
-        }
-
-        makeLegend();
+        } ();
 
         const makeGraticule = function () {
             /* hozzáadjuk a graticule-t */
@@ -156,40 +141,38 @@
                     curr.remove();
                 }
             });
-        }
+        } ();
 
-        makeGraticule();
+        const makeMap = function () {
+            const countries = chartHolder.insert('g', '.graticuleTextHolder').attr('class', 'countries').selectAll('.country').data(topojson.feature(viz.data.worldMap, viz.data.worldMap.objects.countries).features, function (d) {
+                return d.properties.name;
+            });
 
-        const countries = mapHolder.insert('g', '.graticuleTextHolder').attr('class', 'countries').selectAll('.country').data(topojson.feature(viz.data.worldMap, viz.data.worldMap.objects.countries).features, function (d) {
-            return d.properties.name;
-        });
+            countries.enter().append('path').attr('class', 'country').attr('id', (d) => {
+                    if (viz.data.countryCodes[d.properties.name]) return viz.data.countryCodes[d.properties.name].Code;
+                })
+                .attr('d', (d) => {
+                    if (d.properties.name == 'Antarctica') return;
 
-        countries.enter().append('path').attr('class', 'country').attr('id', (d) => {
-                if (viz.data.countryCodes[d.properties.name]) return viz.data.countryCodes[d.properties.name].Code;
-            })
-            .attr('d', (d) => {
-                if (d.properties.name == 'Antarctica') return;
-
-                return path(d);
-            })
-            .attr('stroke', '#666')
-            .attr('stroke-opacity', .15)
-            .attr('stroke-width', .75)
-            .attr('stroke-linejoin', 'round')
-            .attr('stroke-linecap', 'round')
-            .attr('fill', '#fafafa');
+                    return path(d);
+                })
+                .attr('stroke', '#666')
+                .attr('stroke-opacity', .15)
+                .attr('stroke-width', .75)
+                .attr('stroke-linejoin', 'round')
+                .attr('stroke-linecap', 'round')
+                .attr('fill', '#fafafa');
+        } ();
 
         viz.updateMap1(currentYear);
     }
 
     /* térkép frissítése */
     viz.updateMap1 = function (year) {
-        const data = viz.data.majorProducers.filter((e) => {
-            return parseInt(d3.timeFormat('%Y')(e.Year)) === year;
-        });
+        const data = viz.data.majorProducers.filterFunction(viz.multivalue_filter([year + '-01-01T00:00:00.000Z'])).top(Infinity);
 
         data.forEach((d) => {
-            mapHolder.select('.country#' + d.Code)
+            chartContainer.select('.chartHolder').select('.country#' + d.Code)
                 .on('mouseenter', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
 

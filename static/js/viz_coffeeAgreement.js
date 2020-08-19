@@ -1,10 +1,6 @@
 (function (viz) {
     'use strict';
 
-    /* 
-    TODO: térkép
-    */
-
     const chartContainer = d3.select('#coffeeAgreement');
     const margin = {
         'top': 150,
@@ -14,11 +10,6 @@
     };
     const width = parseInt(chartContainer.style('width')) - margin.left - margin.right;
     const height = parseInt(chartContainer.style('height')) - margin.top - margin.bottom;
-
-    /* svg */
-    const svg = chartContainer.append('svg').attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
-    const mapHolder = svg.append('g').attr('class', 'mapHolder').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
 
     /* skálák */
     const colorScale = d3.scaleOrdinal().domain(['Importing', 'Exporting']).range(['#3f596e', '#376940']);
@@ -39,26 +30,23 @@
     ];
 
     /* térképgenerálás */
-    const projection = d3.geoNaturalEarth1().center([20, 10]).scale(200);
+    const projection = d3.geoNaturalEarth1().center([20, 25]).scale(210);
     const path = d3.geoPath().projection(projection);
 
     /* tooltip */
     const tooltip = chartContainer.select('.tooltip');
 
     viz.initMap2 = function () {
+        const dimensions = viz.makeDimensionsObj(width, height, margin);
+        
+        /* svg */
+        const svg = viz.addSvg(chartContainer, dimensions);
+        const chartHolder = viz.addChartHolder(svg, dimensions);
+
         const makeLegend = function () {
-            const legend = svg.append('g').attr('class', 'legend').attr('transform', 'translate(' + margin.left + ', 50)');
-
-            const labelGroup = legend.append('g').attr('class', 'labelGroup')
-                .call(function (g) {
-                    g.append('text').text('International Coffee Agreement').style('font-size', '2.6rem')
-                        .style('font-weight', 700);
-                    g.append('text').text('Total exports and imports measured in thousand 60kg bags | 1990-2018')
-                        .attr('y', 32)
-                        .style('font-size', '1.3rem').style('font-weight', 700).attr('opacity', .5);
-                });
-
-            const sliderGroup = legend.append('g').attr('class', 'sliderGroup').attr('transform', 'translate(' + width * 0.55 + ', -8)')
+            const legend = viz.makeLegend(svg, dimensions, 'International Coffee Agreement', 'Total exports and imports measured in thousand 60kg bags | 1990-2018')
+                .attr('transform', 'translate(' + margin.left + ', 80)');
+            const sliderGroup = legend.append('g').attr('class', 'sliderGroup').attr('transform', 'translate(' + dimensions.width * 0.55 + ', -8)')
                 .call(sliderTime)
                 .call(function (g) {
                     g.select('.slider .parameter-value text').style('font-size', '1.4rem').style('font-weight', 700).attr('fill', '#222')
@@ -68,7 +56,7 @@
                     g.selectAll('.slider line').attr('opacity', .75);
                 });
 
-            const colorGroup = legend.append('g').attr('class', 'colorGroup').attr('transform', 'translate(' + width * 0.63 + ', 29)')
+            const colorGroup = legend.append('g').attr('class', 'colorGroup').attr('transform', 'translate(' + dimensions.width * 0.63 + ', 29)')
                 .call(function (g) {
                     g.selectAll('circle').data(colorScale.domain()).enter().append('circle').attr('r', 5)
                         .attr('fill', colorScale).attr('cx', function (d, i) {
@@ -81,48 +69,44 @@
                             return i * 125 + 10;
                         }).attr('dy', '.33em');
                 });
-        }
+        } ();
 
-        makeLegend();
+        const makeMap = function () {
+            const countries = chartHolder.append('g').attr('class', 'countries').selectAll('.country').data(topojson.feature(viz.data.worldMap, viz.data.worldMap.objects.countries).features, function (d) {
+                return d.properties.name;
+            });
 
-        const countries = mapHolder.append('g').attr('class', 'countries').selectAll('.country').data(topojson.feature(viz.data.worldMap, viz.data.worldMap.objects.countries).features, function (d) {
-            return d.properties.name;
-        });
+            countries.enter().append('path').attr('class', 'country').attr('id', function (d) {
+                    let code = null;
 
-        countries.enter().append('path').attr('class', 'country').attr('id', function (d) {
-                let code = null;
+                    if (europeanUnion.includes(d.properties.name)) {
+                        return 'EAU';
+                    } else {
+                        code = viz.data.countryCodes[d.properties.name];
+                    }
 
-                if (europeanUnion.includes(d.properties.name)) {
-                    return 'EAU';
-                } else {
-                    code = viz.data.countryCodes[d.properties.name];
-                }
+                    if (code) return code.Code;
+                }).attr('d', function (d) {
+                    if (d.properties.name === 'Antarctica') return null;
 
-                if (code) return code.Code;
-            }).attr('d', function (d) {
-                if (d.properties.name === 'Antarctica') return null;
-
-                return path(d);
-            }).attr('stroke', '#666')
-            .attr('stroke-opacity', .15)
-            .attr('stroke-width', .75)
-            .attr('stroke-linejoin', 'round')
-            .attr('stroke-linecap', 'round')
-            .attr('fill', '#fafafa');
+                    return path(d);
+                }).attr('stroke', '#666')
+                .attr('stroke-opacity', .15)
+                .attr('stroke-width', .75)
+                .attr('stroke-linejoin', 'round')
+                .attr('stroke-linecap', 'round')
+                .attr('fill', '#fafafa');
+        } ();
 
         viz.updateMap2(currentYear);
     }
 
     viz.updateMap2 = function (year) {
-        const dataExport = viz.data.totalExport.filter(function (d) {
-            return parseInt(d3.timeFormat('%Y')(d.Year)) === year;
-        });
-        const dataImport = viz.data.totalImport.filter(function (d) {
-            return parseInt(d3.timeFormat('%Y')(d.Year)) === year;
-        });
+        const dataExport = viz.data.totalExport.filterFunction(viz.multivalue_filter([year + '-01-01T00:00:00.000Z'])).top(Infinity);
+        const dataImport = viz.data.totalImport.filterFunction(viz.multivalue_filter([year + '-01-01T00:00:00.000Z'])).top(Infinity);
 
         dataExport.forEach(function (d) {
-            mapHolder.select('.country#' + d.Code)
+            chartContainer.select('.chartHolder').select('.country#' + d.Code)
                 .on('mouseenter', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
 
@@ -149,12 +133,12 @@
         });
 
         dataImport.forEach(function (d) {
-            mapHolder.selectAll('.country#' + d.Code)
+            chartContainer.select('.chartHolder').selectAll('.country#' + d.Code)
                 .on('mouseenter', function () {
                     const curr = d3.select(this);
 
                     if (curr.attr('id') === 'EAU') {
-                        mapHolder.selectAll('.country#EAU').transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
+                        chartContainer.select('.chartHolder').selectAll('.country#EAU').transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
                     } else {
                         curr.transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
                     }
@@ -177,7 +161,7 @@
                     const curr = d3.select(this);
 
                     if (curr.attr('id') === 'EAU') {
-                        mapHolder.selectAll('.country#EAU').transition().duration(viz.TRANS_DURATION / 5).attr('fill', colorScale('Importing'));
+                        chartContainer.select('.chartHolder').selectAll('.country#EAU').transition().duration(viz.TRANS_DURATION / 5).attr('fill', colorScale('Importing'));
                     } else {
                         curr.transition().duration(viz.TRANS_DURATION / 5).attr('fill', colorScale('Importing'));
                     }

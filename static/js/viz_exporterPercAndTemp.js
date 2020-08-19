@@ -11,44 +11,6 @@
     const width = parseInt(chartContainer.style('width')) - margin.left - margin.right;
     const height = parseInt(chartContainer.style('height')) - margin.top - margin.bottom;
 
-    /* svg */
-    const svg = chartContainer.append('svg').attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
-
-    /* mousearea */
-    const mouseRect = svg.append('g').attr('class', 'mouseArea').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
-        .call(function (g) {
-            g.append('rect').attr('x', 0).attr('y', -25).attr('width', width).attr('height', height + 25)
-                .attr('fill', 'transparent').style('cursor', 'crosshair');
-        })
-        .call(function (g) {
-            g.append('text').attr('y', -20).style('text-anchor', 'middle').style('font-size', '1.5rem').style('font-weight', 700)
-                .style('pointer-events', 'none');
-            g.append('line').attr('y1', -10).attr('y2', height + 25).attr('stroke', '#666').attr('stroke-dasharray', '.75rem')
-                .style('pointer-events', 'none');
-        })
-        .on('mousemove', function () {
-            const mouseCoords = d3.mouse(this);
-            const currentScale = currentPlot === 'temperature' ? scaleTemp : scalePerc;
-
-            d3.select(this).select('line').attr('opacity', 1)
-                .attr('x1', mouseCoords[0])
-                .attr('x2', mouseCoords[0]);
-            d3.select(this).select('text').attr('opacity', 1)
-                .text(function () {
-                    return currentScale.invert(mouseCoords[0]).toFixed(0) + (currentPlot === 'temperature' ? '°C' : ' mm');
-                }).attr('x', mouseCoords[0]);
-        })
-        .on('mouseleave', function () {
-            d3.select(this).select('line').attr('opacity', 0);
-            d3.select(this).select('text').attr('opacity', 0);
-        });
-
-    /* chartholder */
-    const chartHolder = svg.append('g').attr('class', 'chartHolder').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
-    /* tengely-container */
-    const axis = svg.append('g').attr('class', 'axis').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
-
     /* domain of times */
     const domainOfTimes = ['1920/1939', '1940/1959', '1960/1979', '1980/1999', '2020/2039', '2040/2059', '2060/2079', '2080/2099'];
 
@@ -64,8 +26,8 @@
     let dataTemp = null;
     let dataPerc = null;
 
-    /* tengelyek */
-    const makeAxis = function (plot) {
+    /* tengelyek - axis = axisContainer */
+    const makeAxis = function (axis, plot) {
         const currentScale = plot === 'temperature' ? scaleTemp : scalePerc;
         const data = d3.range(currentScale.domain()[0], currentScale.domain()[1] + 1, (currentScale.domain()[0] + currentScale.domain()[1]) / 6);
 
@@ -123,17 +85,15 @@
             return d.key;
         }));
 
-        const makeLegend = function () {
-            const legend = svg.append('g').attr('class', 'legend').attr('transform', 'translate(' + margin.left + ', ' + 50 + ')');
+        const dimensions = viz.makeDimensionsObj(width, height, margin);
+        const svg = viz.addSvg(chartContainer, dimensions);
+        const chartHolder = viz.addChartHolder(svg, dimensions);
 
-            const labelGroup = legend.append('g').attr('class', 'labelGroup')
-                .call(function (g) {
-                    g.append('text').text('Average annual temperature/precipitation in exporting countries')
-                        .style('font-size', '2.6rem').style('font-weight', 700);
-                    g.append('text').text('Measured in celsius degrees or mm | seperated into average groups | 1920-2100')
-                        .style('font-size', '1.3rem').style('font-weight', 700)
-                        .attr('opacity', .5).attr('y', 32);
-                });
+        // tengelycontainer
+        const axis = svg.append('g').attr('class', 'axis').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')');
+
+        const makeLegend = function () {
+            const legend = viz.makeLegend(svg, dimensions, 'Average annual temperature/precipitation in exporting countries', 'Measured in celsius degrees or mm | seperated into average groups | 1920-2100');
 
             const averageGroup = legend.append('g').attr('class', 'averageGroup')
                 .attr('transform', 'translate(5, 64)')
@@ -208,83 +168,114 @@
 
                     currentPlot = d;
 
-                    viz.updateDotPlot(currentPlot);
+                    viz.updateDotPlot(chartHolder, axis, currentPlot);
                 });
-        }
+        }();
 
-        makeLegend();
+        /* mousearea */
+        const makeHoverEffect = function () {
+            const mouseRect = svg.append('g').attr('class', 'mouseArea').attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
+                .call(function (g) {
+                    g.append('rect').attr('x', 0).attr('y', -25).attr('width', width).attr('height', height + 25)
+                        .attr('fill', 'transparent').style('cursor', 'crosshair');
+                })
+                .call(function (g) {
+                    g.append('text').attr('y', -20).style('text-anchor', 'middle').style('font-size', '1.5rem').style('font-weight', 700)
+                        .style('pointer-events', 'none');
+                    g.append('line').attr('y1', -10).attr('y2', height + 25).attr('stroke', '#666').attr('stroke-dasharray', '.75rem')
+                        .style('pointer-events', 'none');
+                })
+                .on('mousemove', function () {
+                    const mouseCoords = d3.mouse(this);
+                    const currentScale = currentPlot === 'temperature' ? scaleTemp : scalePerc;
 
-        viz.updateDotPlot(currentPlot);
+                    d3.select(this).select('line').attr('opacity', 1)
+                        .attr('x1', mouseCoords[0])
+                        .attr('x2', mouseCoords[0]);
+                    d3.select(this).select('text').attr('opacity', 1)
+                        .text(function () {
+                            return currentScale.invert(mouseCoords[0]).toFixed(0) + (currentPlot === 'temperature' ? '°C' : ' mm');
+                        }).attr('x', mouseCoords[0]);
+                })
+                .on('mouseleave', function () {
+                    d3.select(this).select('line').attr('opacity', 0);
+                    d3.select(this).select('text').attr('opacity', 0);
+                });
+        }();
+
+        viz.updateDotPlot(chartHolder, axis, currentPlot);
     }
 
-    viz.updateDotPlot = function (plot) {
-        makeAxis(plot);
+    viz.updateDotPlot = function (chartHolder, axis, plot) {
+        makeAxis(axis, plot);
 
         const data = plot === 'temperature' ? dataTemp : dataPerc;
         const currentScale = plot === 'temperature' ? scaleTemp : scalePerc;
 
-        const groups = chartHolder.selectAll('.group').data(data, function (d) {
-            return d.key;
-        });
-
-        groups.enter().append('g').attr('class', 'group')
-            .style('pointer-events', 'none')
-            .call(function (g) {
-                g.append('line').style('pointer-events', 'none');
-                g.append('g');
-                g.append('text').style('pointer-events', 'none');
-            })
-            .attr('transform', function (d) {
-                return 'translate(0, ' + scaleCode(d.key) + ')';
-            })
-            .merge(groups)
-            .call(function (g) {
-                g.select('line')
-                    .attr('stroke', '#666')
-                    .attr('stroke-width', 1.5)
-                    .transition().duration(viz.TRANS_DURATION)
-                    .attr('x1', function (d) {
-                        return currentScale(d3.min(d.values, function (d) {
-                            return d.Value;
-                        }));
-                    }).attr('x2', function (d) {
-                        return currentScale(d3.max(d.values, function (d) {
-                            return d.Value;
-                        }));
-                    }).attr('y1', 0).attr('y2', 0);
-
-                g.select('text').text(function (d) {
-                        return viz.data.codes[d.key];
-                    })
-                    .attr('text-anchor', 'end')
-                    .style('font-size', '1.2rem')
-                    .transition().duration(viz.TRANS_DURATION)
-                    .attr('x', function (d) {
-                        return currentScale(d3.min(d.values, function (d) {
-                            return d.Value;
-                        })) - 10;
-                    })
-                    .attr('dy', '.35em');
-
-                const dots = g.select('g').selectAll('.dot').data(function (d) {
-                    return d.values;
-                });
-
-                dots.enter().append('circle').attr('class', 'dot')
-                    .merge(dots)
-                    .transition().duration(viz.TRANS_DURATION)
-                    .attr('opacity', 1)
-                    .attr('r', 5).attr('fill', function (d) {
-                        return colorScale(d.Year);
-                    })
-                    .attr('cx', function (d) {
-                        return currentScale(d.Value);
-                    });
-
-                dots.exit().transition().duration(viz.TRANS_DURATION).attr('opacity', 0).remove();
+        const makeChart = function () {
+            const groups = chartHolder.selectAll('.group').data(data, function (d) {
+                return d.key;
             });
 
-        groups.exit().transition().duration(viz.TRANS_DURATION).attr('opacity', 0).remove();
+            groups.enter().append('g').attr('class', 'group')
+                .style('pointer-events', 'none')
+                .call(function (g) {
+                    g.append('line').style('pointer-events', 'none');
+                    g.append('g');
+                    g.append('text').style('pointer-events', 'none');
+                })
+                .attr('transform', function (d) {
+                    return 'translate(0, ' + scaleCode(d.key) + ')';
+                })
+                .merge(groups)
+                .call(function (g) {
+                    g.select('line')
+                        .attr('stroke', '#666')
+                        .attr('stroke-width', 1.5)
+                        .transition().duration(viz.TRANS_DURATION)
+                        .attr('x1', function (d) {
+                            return currentScale(d3.min(d.values, function (d) {
+                                return d.Value;
+                            }));
+                        }).attr('x2', function (d) {
+                            return currentScale(d3.max(d.values, function (d) {
+                                return d.Value;
+                            }));
+                        }).attr('y1', 0).attr('y2', 0);
+
+                    g.select('text').text(function (d) {
+                            return viz.data.codes[d.key];
+                        })
+                        .attr('text-anchor', 'end')
+                        .style('font-size', '1.2rem')
+                        .transition().duration(viz.TRANS_DURATION)
+                        .attr('x', function (d) {
+                            return currentScale(d3.min(d.values, function (d) {
+                                return d.Value;
+                            })) - 10;
+                        })
+                        .attr('dy', '.35em');
+
+                    const dots = g.select('g').selectAll('.dot').data(function (d) {
+                        return d.values;
+                    });
+
+                    dots.enter().append('circle').attr('class', 'dot')
+                        .merge(dots)
+                        .transition().duration(viz.TRANS_DURATION)
+                        .attr('opacity', 1)
+                        .attr('r', 5).attr('fill', function (d) {
+                            return colorScale(d.Year);
+                        })
+                        .attr('cx', function (d) {
+                            return currentScale(d.Value);
+                        });
+
+                    dots.exit().transition().duration(viz.TRANS_DURATION).attr('opacity', 0).remove();
+                });
+
+            groups.exit().transition().duration(viz.TRANS_DURATION).attr('opacity', 0).remove();
+        }();
 
         chartHolder.raise();
     }

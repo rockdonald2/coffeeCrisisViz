@@ -11,9 +11,8 @@
                 100
                 100%22><text y=%22.9em%22
                     font-size=%2290%22>📉</text></svg>">
-    </head>
-    <link rel="stylesheet"
-        href="static/css/style.css">
+        <link rel="stylesheet"
+            href="static/css/style.css">
     </head>
 
     <body>
@@ -71,12 +70,7 @@
             <!-- paragraph end -->
             <!-- chart start -->
             <section class="chart"
-                id="pricesPaidToGrowers">
-            </section>
-            <!-- chart end -->
-            <!-- chart start -->
-            <section class="chart"
-                id="retailPrices">
+                id="prices">
             </section>
             <!-- chart end -->
             <!-- paragraph start -->
@@ -545,12 +539,16 @@
             <!-- chart start -->
             <section class="chart"
                 id="colombiaAreaChart">
-
             </section>
             <!-- chart end -->
             <!-- chart start -->
             <section class="chart"
-                id="colombianInternalPrices">
+                id="colombianPrices">
+            </section>
+            <!-- chart end -->
+            <!-- chart start -->
+            <section class="chart"
+                id="colombiaMap">
             </section>
             <!-- chart end -->
         </main>
@@ -571,13 +569,13 @@
             defer></script>
         <script src="https://d3js.org/d3-array.v2.min.js"
             defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crossfilter2/2.0.0-alpha.4/crossfilter.min.js"
+            defer></script>
 
         <!-- scripting -->
         <script src="static/js/viz_majorproducers.js"
             defer></script>
-        <script src="static/js/viz_pricesPaidToGrowers.js"
-            defer></script>
-        <script src="static/js/viz_retailPrices.js"
+        <script src="static/js/viz_prices.js"
             defer></script>
         <script src="static/js/viz_historicalPrices.js"
             defer></script>
@@ -589,7 +587,9 @@
             defer></script>
         <script src="static/js/viz_colombiaAreaChart.js"
             defer></script>
-        <script src="static/js/viz_colombianInternalPrices.js"
+        <script src="static/js/viz_colombianPrices.js"
+            defer></script>
+        <script src="static/js/viz_colombiaMap.js"
             defer></script>
         <script src="static/js/viz_main.js"
             defer></script>

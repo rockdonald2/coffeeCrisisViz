@@ -11,32 +11,12 @@
     const width = parseInt(chartContainer.style('width')) - margin.left - margin.right;
     const height = parseInt(chartContainer.style('height')) - margin.top - margin.bottom;
 
-    /* svg */
-    const svg = chartContainer.append('svg').attr('width', width + margin.left + margin.right)
-        .attr('height', height + margin.top + margin.bottom);
-
-    /* chartHolder */
-    const chartHolder = svg.append('g').attr('class', 'chartHolder')
-        .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
-        .attr('clip-path', 'url(#clip)');
-
     /* skálák */
     /* years: 1956-01-> 2020-06*/
     const scaleTime = d3.scaleTime().range([0, width]);
     const scaleValue = d3.scaleLinear().range([height, 0]).nice();
 
-    /* clip-path, bármi ezen a területen kívül nem lesz látható */
-    const clip = svg.append('defs').append('svg:clipPath')
-        .attr('id', 'clip').append('svg:rect').attr('width', width)
-        .attr('height', height).attr('x', 0).attr('y', 0);
-
-    /* brush */
-    const brush = d3.brushX().extent([
-            [0, 0],
-            [width, height]
-        ])
-        .on('end', updateAreaChart);
-
+    /* update elemek */
     const areaGenerator = d3.area().x(function (d) {
             return scaleTime(d.Year);
         })
@@ -60,7 +40,41 @@
         });
     };
 
+    /* azért van szükség erre, hogy ne lehessen azonnal reset után brusholni */
+    let idleTimeout;
+
+    function idled() {
+        idleTimeout = null;
+    }
+
     viz.initAreaChart = function () {
+        const dimensions = viz.makeDimensionsObj(width, height, margin);
+
+        /* svg */
+        const svg = viz.addSvg(chartContainer, dimensions);
+        svg.on('dblclick', function () {
+            scaleTime.domain(d3.extent(viz.data.colombiaProduction, function (d) {
+                return d.Year;
+            }));
+            svg.select('.x-axis').call(makeXAxis);
+            chartHolder.select('.area').transition().duration(viz.TRANS_DURATION).attr('d', areaGenerator);
+        });
+        /* clip-path, bármi ezen a területen kívül nem lesz látható */
+        const clip = svg.append('defs').append('svg:clipPath')
+            .attr('id', 'clip').append('svg:rect').attr('width', dimensions.width)
+            .attr('height', dimensions.height).attr('x', 0).attr('y', 0);
+        /* brush */
+        const brush = d3.brushX().extent([
+                [0, 0],
+                [width, height]
+            ])
+            .on('end', function (e) {
+                updateAreaChart(svg, chartHolder);
+            });
+
+        /* chartHolder */
+        const chartHolder = viz.addChartHolder(svg, dimensions).attr('clip-path', 'url(#clip)');
+
         const data = viz.data.colombiaProduction;
 
         scaleTime.domain(d3.extent(data, function (d) {
@@ -98,26 +112,9 @@
                         }).attr('fill', '#222').attr('opacity', .75)
                         .attr('x', -10).attr('y', scaleValue).style('font-size', '1.5rem').style('font-weight', 700).attr('text-anchor', 'end').attr('dy', '.32em');
                 })
-        }
+        }();
 
-        makeAxis();
-
-        const makeLegend = function () {
-            const legend = svg.append('g').attr('class', 'legend')
-                .attr('transform', 'translate(' + margin.left + ', 50)');
-
-            const titleGroup = legend.append('g').attr('class', 'titleGroup')
-                .call(function (g) {
-                    g.append('text').text('Colombian monthly production of coffee')
-                        .style('font-size', '2.6rem').style('font-weight', 700);
-                    g.append('text').text('Measured in thousand 60kg bags | 1956 January - 2020 June | Brushable chart | Double click to reset zoom')
-                        .attr('y', 32)
-                        .style('font-size', '1.3rem').style('font-weight', 700)
-                        .attr('opacity', .5);
-                })
-        }
-
-        makeLegend();
+        viz.makeLegend(svg, dimensions, 'Colombian monthly production of coffee', 'Measured in thousand 60kg bags | 1956 January - 2020 June | Brushable chart | Double click to reset zoom')
 
         const makeChart = function () {
             chartHolder.append('path').datum(data)
@@ -128,44 +125,27 @@
 
             chartHolder.append('g').attr('class', 'brush')
                 .call(brush);
-        }
+        }();
 
-        makeChart();
-    }
+        /* muszáj a brush-al egy scope-ban legyen */
+        function updateAreaChart(svg, chartHolder) {
+            const extent = d3.event.selection;
 
-    /* azért van szükség erre, hogy ne lehessen azonnal reset után brusholni */
-    let idleTimeout;
+            if (!extent) {
+                if (!idleTimeout) {
+                    return idleTimeout = setTimeout(idled, viz.TRANS_DURATION);
+                }
+            } else {
+                /* ha a kijelölt időtáv kevesebb lenne, mint 1 év, ne csináljon semmit */
+                if ((scaleTime.invert(extent[1]) - scaleTime.invert(extent[0])) > (1000 * 60 * 60 * 24 * 365)) {
+                    scaleTime.domain([scaleTime.invert(extent[0]), scaleTime.invert(extent[1])]);
+                }
 
-    function idled() {
-        idleTimeout = null;
-    }
-
-    function updateAreaChart() {
-        const extent = d3.event.selection;
-
-        if (!extent) {
-            if (!idleTimeout) {
-                return idleTimeout = setTimeout(idled, viz.TRANS_DURATION);
-            }
-        } else {
-            /* ha a kijelölt időtáv kevesebb lenne, mint 1 év, ne csináljon semmit */
-            if ((scaleTime.invert(extent[1]) - scaleTime.invert(extent[0])) > (1000 * 60 * 60 * 24 * 365)) {
-                scaleTime.domain([scaleTime.invert(extent[0]), scaleTime.invert(extent[1])]);
+                chartHolder.select('.brush').call(brush.move, null);
             }
 
-            chartHolder.select('.brush').call(brush.move, null);
+            svg.select('.x-axis').call(makeXAxis);
+            chartHolder.select('.area').transition().duration(viz.TRANS_DURATION).attr('d', areaGenerator);
         }
-
-        svg.select('.x-axis').call(makeXAxis);
-        chartHolder.select('.area').transition().duration(viz.TRANS_DURATION).attr('d', areaGenerator);
     }
-
-    svg.on('dblclick', function () {
-        scaleTime.domain(d3.extent(viz.data.colombiaProduction, function (d) {
-            return d.Year;
-        }));
-        svg.select('.x-axis').call(makeXAxis);
-        chartHolder.select('.area').transition().duration(viz.TRANS_DURATION).attr('d', areaGenerator);
-    })
-
 }(window.viz = window.viz || {}));

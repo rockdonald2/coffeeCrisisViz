@@ -49,16 +49,10 @@
     grid-row: 1 / 3;
 }
 
-#pricesPaidToGrowers {
+#prices {
     grid-column: 1 / -1;
-    grid-row: span 3;
-    height: 60rem;
-}
-
-#retailPrices {
-    grid-column: 1 / -1;
-    grid-row: span 3;
-    height: 60rem;
+    grid-row: span 6;
+    height: 120rem;
 }
 
 #historicalPrices {
@@ -70,7 +64,7 @@
 #coffeeAgreement {
     grid-column: 2 / -1;
     grid-row: span 2;
-    height: 65rem;
+    height: 70rem;
 }
 
 #exporterPercAndTemp {
@@ -127,14 +121,14 @@
     height: 50rem;
 }
 
-#colombianInternalPrices {
+#colombianPrices {
     grid-column: 1 / -1;
-    grid-row: span 1;
-    height: 32.5rem;
+    grid-row: span 2;
+    height: 80rem;
 }
 
-#colombianExportPrices {
+#colombiaMap {
     grid-column: 1 / -1;
-    grid-row: span 1;
-    height: 32.5rem;
+    grid-row: span 2;
+    height: 50rem;
 }
