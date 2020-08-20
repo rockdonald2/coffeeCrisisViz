@@ -114,7 +114,7 @@
                 })
                 .on('mouseleave', function (d) {
                     chartHolder.selectAll('.rect').transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 1);
-                    tooltip.style('left', '-9999px');
+                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 0);
                 })
                 .on('mousemove', function (d) {
                     if (d3.event.pageX >= width) {
@@ -123,6 +123,7 @@
                         tooltip.style('left', (d3.event.pageX + 20) + 'px');
                     }
                     tooltip.style('top', (d3.event.pageY + 20) + 'px');
+                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 1);
                 });
         }();
     }

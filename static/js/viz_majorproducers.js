@@ -18,21 +18,6 @@
     /* years: 1990->2018 */
     let years = d3.range(1990, 2019);
     let currentYear = 2018;
-    const sliderTime = d3.sliderBottom().min(d3.min(years)).max(d3.max(years))
-        .step(1).width(280).tickFormat(d3.format('d'))
-        .handle('M7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,-7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,7.978845608028654,0')
-        .tickValues([]).default(2018)
-        .on('onchange', function (d) {
-            currentYear = d;
-            viz.updateMap1(currentYear);
-        });
-
-    /* path */
-    const projection = d3.geoMercator().center([72.5, 38]).scale(160);
-    const path = d3.geoPath().projection(projection);
-
-    /* graticule */
-    const graticule = d3.geoGraticule().step([5, 5]);
 
     /* tooltip */
     const tooltip = chartContainer.select('.tooltip');
@@ -50,10 +35,17 @@
         const graticuleHolder = chartHolder.append('g').attr('class', 'graticuleHolder')
         const graticuleTextHolder = chartHolder.append('g').attr('class', 'graticuleTextHolder');
 
+        /* path */
+        const projection = d3.geoMercator().center([65, 60]).scale(170);
+        const path = d3.geoPath().projection(projection);
+
+        /* graticule */
+        const graticule = d3.geoGraticule().step([5, 5]);
+
         const makeLegend = function () {
             const legend = viz.makeLegend(svg, dimensions, 'Major coffee producers', 'Measured in thousand 60kg bags')
                 .attr('transform', 'translate(' + (2 * dimensions.margin.left) + ', 100)');
-            
+
             legend.select('.titleGroup')
                 .call(function (g) {
                     g.insert('rect', 'text')
@@ -63,6 +55,10 @@
                         .attr('opacity', .75);
                 });
 
+            const sliderTime = viz.addSliderTime(years, 2018).width(280).on('onchange', function (d) {
+                currentYear = d;
+                viz.updateMap1(currentYear);
+            });
             const sliderGroup = legend.append('g').attr('class', 'sliderGroup')
                 .attr('transform', 'translate(10, 64)')
                 .call(sliderTime)
@@ -73,7 +69,7 @@
                 .call(function (g) {
                     g.selectAll('.slider line').attr('opacity', .75);
                 });
-        } ();
+        }();
 
         const makeGraticule = function () {
             /* hozzáadjuk a graticule-t */
@@ -122,7 +118,7 @@
                     const c = d.coordinates;
                     const p = projection(c[0]);
 
-                    return 'translate(' + (p[0] + width / 2 + 80) + ', ' + (p[1]) + ')';
+                    return 'translate(' + (p[0] + width / 2 + 100) + ', ' + (p[1]) + ')';
                 })
                 .style('font-size', '1.3rem')
                 .style('font-weight', 700);
@@ -141,7 +137,7 @@
                     curr.remove();
                 }
             });
-        } ();
+        }();
 
         const makeMap = function () {
             const countries = chartHolder.insert('g', '.graticuleTextHolder').attr('class', 'countries').selectAll('.country').data(topojson.feature(viz.data.worldMap, viz.data.worldMap.objects.countries).features, function (d) {
@@ -157,12 +153,13 @@
                     return path(d);
                 })
                 .attr('stroke', '#666')
-                .attr('stroke-opacity', .15)
+                .attr('stroke-opacity', .25)
                 .attr('stroke-width', .75)
                 .attr('stroke-linejoin', 'round')
                 .attr('stroke-linecap', 'round')
+                .attr('stroke-dasharray', '2, 2')
                 .attr('fill', '#fafafa');
-        } ();
+        }();
 
         viz.updateMap1(currentYear);
     }
@@ -178,9 +175,21 @@
 
                     tooltip.select('.tooltip--heading')
                         .html(viz.data.codes[d.Code])
-                        .style('background-color', colorScale(d.Value)).style('color', '#fafafa');
+                        .style('background-color', function () {
+                            if (d.Value === 0) {
+                                return '#ccc';
+                            } else {
+                                return colorScale(d.Value);
+                            }
+                        }).style('color', '#fafafa');
                     tooltip.select('.tooltip--info')
-                        .html('Their total production in ' + year + ' was <span class="tooltip--emphasize">' + (d.Value.toFixed(2)) + '</span> thousands 60kg bags.');
+                        .html(function () {
+                            if (d.Value === 0) {
+                                return 'There was no data for that period';
+                            } else {
+                                return 'Their total production in ' + year + ' was <span class="tooltip--emphasize">' + (d.Value.toFixed(2)) + '</span> thousands 60kg bags.'
+                            }
+                        });
                 })
                 .on('mousemove', function () {
                     if (d3.event.pageX >= width) {
@@ -189,13 +198,27 @@
                         tooltip.style('left', (d3.event.pageX + 20) + 'px');
                     }
                     tooltip.style('top', (d3.event.pageY + 20) + 'px');
+
+                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 1);
                 })
                 .on('mouseleave', function () {
-                    d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', colorScale(d.Value));
-                    tooltip.style('left', '-9999px');
+                    d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', function () {
+                        if (d.Value === 0) {
+                            return '#ccc';
+                        } else {
+                            return colorScale(d.Value);
+                        }
+                    });
+                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 0);
                 })
                 .transition().duration(viz.TRANS_DURATION)
-                .attr('fill', colorScale(d.Value))
+                .attr('fill', function () {
+                    if (d.Value === 0) {
+                        return '#ccc';
+                    } else {
+                        return colorScale(d.Value);
+                    }
+                })
                 .attr('stroke', '#fafafa');
         });
     }

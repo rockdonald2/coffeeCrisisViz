@@ -70,7 +70,7 @@
                 })
                 .call(function (g) {
                     g.append('text').text('Oil crisis')
-                        .attr('y', 30).attr('x', -80)
+                        .attr('y', 30).attr('x', -75)
                         .attr('alignment-baseline', 'middle')
                         .attr('fill', '#5e0606')
                         .style('font-size', '1.5rem')

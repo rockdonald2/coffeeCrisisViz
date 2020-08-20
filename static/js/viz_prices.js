@@ -42,11 +42,11 @@
             .attr('y', -10);
 
         const valueLines = svg.append('g').attr('display', 'none').style('pointer-events', 'none');
-        valueLines.append('line').attr('id', 'x-line').attr('stroke', '#222').attr('stroke-width', 1).attr('opacity', .75);
-        valueLines.append('line').attr('id', 'y-line').attr('stroke', '#222').attr('stroke-width', 1).attr('opacity', .75);
+        valueLines.append('line').attr('id', 'x-line').attr('stroke', '#222').attr('stroke-width', 1).attr('opacity', .25);
+        valueLines.append('line').attr('id', 'y-line').attr('stroke', '#222').attr('stroke-width', 1).attr('opacity', .25);
         valueLines.append('text').attr('id', 'x-value').style('font-size', '1.5rem').style('font-weight', 700).attr('text-anchor', 'middle');
         valueLines.append('text').attr('id', 'y-value').style('font-size', '1.5rem')
-            .style('font-weight', 700).attr('dy', '.32em').attr('text-anchor', 'middle');
+            .style('font-weight', 700).attr('dy', '.32em').attr('text-anchor', 'end');
 
         function moved() {
             d3.event.preventDefault();
@@ -82,7 +82,7 @@
                 .attr('x', dimensions.margin.left + scaleTime(years[i]))
                 .attr('y', dimensions.height + dimensions.margin.top + 20);
             valueLines.select('#y-value').text(s.values[i].Value.toFixed(0))
-                .attr('x', dimensions.margin.left - 20)
+                .attr('x', dimensions.margin.left - 10)
                 .attr('y', scaleValue(s.values[i].Value) + dimensions.margin.top);
 
             dot.raise();

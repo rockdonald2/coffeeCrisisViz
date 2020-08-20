@@ -76,6 +76,9 @@
         const chartHolder = viz.addChartHolder(svg, dimensions).attr('clip-path', 'url(#clip)');
 
         const data = viz.data.colombiaProduction;
+        const mean = d3.mean(data, function (d) {
+            return d.Production;
+        });
 
         scaleTime.domain(d3.extent(data, function (d) {
             return d.Year;
@@ -108,10 +111,22 @@
                         .attr('stroke-linecap', 'round');
 
                     g.append('text').text(function (d) {
+                            if (d === 0) return;
+
                             return d;
                         }).attr('fill', '#222').attr('opacity', .75)
                         .attr('x', -10).attr('y', scaleValue).style('font-size', '1.5rem').style('font-weight', 700).attr('text-anchor', 'end').attr('dy', '.32em');
-                })
+                });
+            const meanLine = function () {
+                yAxis.append('g').attr('class', 'meanGroup')
+                    .call(function (g) {
+                        g.append('line').attr('stroke', '#620303').attr('stroke-width', 1).attr('opacity', 1)
+                            .attr('stroke-dasharray', '1rem')
+                            .attr('x1', 0).attr('x2', width).attr('y1', scaleValue(mean)).attr('y2', scaleValue(mean));
+                        g.append('text').text('Mean').attr('fill', '#620303').style('font-size', '1.1rem')
+                            .attr('y', scaleValue(mean) - 10).attr('x', 10);
+                    });
+            }();
         }();
 
         viz.makeLegend(svg, dimensions, 'Colombian monthly production of coffee', 'Measured in thousand 60kg bags | 1956 January - 2020 June | Brushable chart | Double click to reset zoom')

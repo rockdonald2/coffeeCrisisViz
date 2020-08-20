@@ -139,6 +139,8 @@
             })
             .call(function (g) {
                 g.append('text').text(function (d) {
+                        if (d === 0) return;
+
                         return formatY(d);
                     }).attr('y', scaleY)
                     .attr('x', -10)
@@ -173,7 +175,7 @@
             .style('pointer-events', 'none');
     };
 
-    viz.bisectXAxis = function(mx, data, scaleX) {
+    viz.bisectXAxis = function (mx, data, scaleX) {
         const bisect = d3.bisector(function (d) {
             return d.Year;
         }).left;
@@ -204,6 +206,9 @@
 
                 return -30;
             });
+        dot.append('line').attr('id', 'line')
+            .attr('stroke', '#222').attr('stroke-width', 1).attr('opacity', .25)
+            .attr('x1', 0).attr('x2', 0);
 
         const mouseArea = viz.addMouseArea(svg, dimensions);
 
@@ -221,10 +226,18 @@
 
                 return d3.timeFormat('%Y')(Year);
             });
+            dot.select('#line').attr('y1', -scaleValue(Price)).attr('y2', dimensions.height - scaleValue(Price));
         });
         mouseArea.on('touchend mouseleave', function () {
             dot.attr('display', 'none');
         });
+    };
+
+    viz.addSliderTime = function (years, def) {
+        return d3.sliderBottom().min(d3.min(years)).max(d3.max(years))
+            .step(1).tickFormat(d3.format('d'))
+            .handle('M7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,-7.978845608028654,0A7.978845608028654,7.978845608028654,0,1,1,7.978845608028654,0')
+            .tickValues([]).default(def);
     };
 
     /* elindítja a vizualizáció betöltését */
@@ -249,5 +262,7 @@
         viz.initLineChart4();
         /* tizedik ábra: kolumbiai export árak vonaldiagram */
         viz.initLineChart5();
+        /* tizenegyedik ábra: kolumbiai térképdiagram */
+        viz.initMap3();
     };
 }(window.viz = window.viz || {}));

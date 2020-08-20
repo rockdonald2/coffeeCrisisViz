@@ -1,0 +1,29 @@
+.footer {
+    grid-column: 1 / -1;
+    grid-row: span 1;
+    margin-top: 5rem;
+    padding-top: 2.5rem;
+    border-top: 2px solid rgba($text-color, .25);
+    text-align: center;
+        
+    &--text {
+        font-size: 1.6rem;
+    }
+
+    &--link {
+        text-decoration: none;
+        color: $selection-color;
+
+        &:hover,
+        &:focus {
+            span {
+                transform: translateX(.25rem);
+            }
+        }
+
+        span {
+            display: inline-block;
+            transition: all .25s ease-in;
+        }
+    }
+}

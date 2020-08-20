@@ -13,7 +13,7 @@
         0 41.8px 33.4px rgba(0, 0, 0, 0.086),
         0 100px 80px rgba(0, 0, 0, 0.12);
     border-radius: 5px;
-    background-color: #fafafa;
+    background-color: $bg-color;
     text-align: center;
     transition: none;
     z-index: 3;
@@ -58,18 +58,18 @@
 #historicalPrices {
     grid-column: 2 / -1;
     grid-row: span 3;
-    height: 56.5rem;
+    height: 68rem;
 }
 
 #coffeeAgreement {
     grid-column: 2 / -1;
     grid-row: span 2;
-    height: 70rem;
+    height: 67rem;
 }
 
 #exporterPercAndTemp {
     grid-column: 1 / 5;
-    height: 120rem;
+    height: 127rem;
 }
 
 #colombiaGdp {
@@ -128,7 +128,13 @@
 }
 
 #colombiaMap {
-    grid-column: 1 / -1;
+    grid-column: 1 / 4;
     grid-row: span 2;
-    height: 50rem;
+    height: 60rem;
+
+    .tooltip {
+        &--heading {
+            color: $bg-color;
+        }
+    }
 }
