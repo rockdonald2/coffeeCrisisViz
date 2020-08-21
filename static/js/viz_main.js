@@ -50,8 +50,8 @@
         viz.init();
         
         setTimeout(function () {
-            d3.select('body').attr('class', '');
-            d3.select('.overlay').attr('class', 'overlay');
+            d3.select('body.hidden').attr('class', '');
+            d3.select('body > div.overlay').attr('class', 'overlay');
         }, viz.TRANS_DURATION);
     }
 }(window.viz = window.viz || {}));

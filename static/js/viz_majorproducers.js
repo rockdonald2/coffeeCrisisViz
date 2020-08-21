@@ -175,9 +175,9 @@
             } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
                 differenceDistanceFromLeftSide = 50;
             } else if (window.innerWidth > 400 && window.innerWidth <= 475) {
-                differenceDistanceFromLeftSide = 38.5;
+                differenceDistanceFromLeftSide = 35;
             } else {
-                differenceDistanceFromLeftSide = 58.5;
+                differenceDistanceFromLeftSide = 55;
             }
 
             graticuleTextHolder.selectAll('text').data(graticule.lines())

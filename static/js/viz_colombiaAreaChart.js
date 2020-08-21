@@ -86,6 +86,7 @@
                 [width, height]
             ])
             .on('end', function (e) {
+                console.log(e);
                 updateAreaChart(svg, chartHolder);
             });
 
@@ -184,6 +185,6 @@
 
             svg.select('.x-axis').call(makeXAxis);
             chartHolder.select('.area').transition().duration(viz.TRANS_DURATION).attr('d', areaGenerator);
-        }
+        };
     }
 }(window.viz = window.viz || {}));

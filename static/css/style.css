@@ -46,10 +46,10 @@ body {
     body {
       padding: 2.5rem 1.5rem; } }
 
-.hidden {
+body.hidden {
   overflow: hidden; }
 
-.overlay {
+body > div.overlay {
   width: 100%;
   height: 100vh;
   position: absolute;
@@ -66,9 +66,9 @@ body {
   opacity: 0;
   transition-property: translateX, opacity;
   transition: 1s ease-in-out; }
-  .overlay p:nth-child(2) {
+  body > div.overlay p:nth-child(2) {
     margin-bottom: 2rem; }
-  .overlay.show {
+  body > div.overlay.show {
     transform: translateX(0);
     opacity: 1; }
 
