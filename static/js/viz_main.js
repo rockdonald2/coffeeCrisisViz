@@ -48,5 +48,10 @@
 
         /* elindítjuk a vizualizáció betöltését */
         viz.init();
+        
+        setTimeout(function () {
+            d3.select('body').attr('class', '');
+            d3.select('.overlay').attr('class', 'overlay');
+        }, viz.TRANS_DURATION);
     }
 }(window.viz = window.viz || {}));

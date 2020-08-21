@@ -1,6 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 
+    <script>
+        window.onbeforeunload = function () {
+            window.scrollTo(0, 0);
+        };
+    </script>
+
     <head>
         <meta charset="UTF-8">
         <title>The global coffee crisis</title>
@@ -19,7 +25,12 @@
             href="static/css/style.css">
     </head>
 
-    <body>
+    <body class="hidden">
+        <div class="overlay show">
+            <div class="spinner"></div>
+            <p>Currently fetching data...</p>
+        </div>
+
         <!-- container start -->
         <main class="container">
             <!-- header start -->
@@ -656,9 +667,9 @@
             defer></script>
         <script src="static/js/viz_colombiaMap.js"
             defer></script>
-        <script src="static/js/viz_main.js"
-            defer></script>
         <script src="static/js/viz_core.js"
+            defer></script>
+        <script src="static/js/viz_main.js"
             defer></script>
     </body>
 

@@ -51,7 +51,7 @@
             centerPoz = [210, -10];
             scalePoz = 90;
         } else {
-            centerPoz = [285, -10];
+            centerPoz = [280, -10];
             scalePoz = 75;
         }
         const projection = d3.geoMercator().center(centerPoz).scale(scalePoz);
@@ -174,8 +174,10 @@
                 differenceDistanceFromLeftSide = 50;
             } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
                 differenceDistanceFromLeftSide = 50;
+            } else if (window.innerWidth > 400 && window.innerWidth <= 475) {
+                differenceDistanceFromLeftSide = 38.5;
             } else {
-                differenceDistanceFromLeftSide = 52.5;
+                differenceDistanceFromLeftSide = 58.5;
             }
 
             graticuleTextHolder.selectAll('text').data(graticule.lines())

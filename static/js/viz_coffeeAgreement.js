@@ -50,7 +50,7 @@
             centerPoz = [225, -40];
             scalePoz = 100;
         } else {
-            centerPoz = [687.5, -40];
+            centerPoz = [681.5, -40];
             scalePoz = 82.5;
         }
         const projection = d3.geoNaturalEarth1().center(centerPoz).scale(scalePoz);
