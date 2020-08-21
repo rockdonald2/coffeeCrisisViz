@@ -2,12 +2,18 @@
     'use strict';
 
     const chartContainer = d3.select('#historicalPrices');
-    const margin = {
-        'top': 135,
-        'left': 75,
-        'right': 25,
-        'bottom': 50
-    };
+
+    let margin = {};
+    if (window.innerWidth <= 1100) {
+        margin = {'top': 125, 'left': 50, 'right': 50, 'bottom': 50};
+    } else {
+        margin = {
+            'top': 125,
+            'left': 75,
+            'right': 25,
+            'bottom': 50
+        };
+    }
     const width = parseInt(chartContainer.style('width')) - margin.left - margin.right;
     const height = parseInt(chartContainer.style('height')) - margin.top - margin.bottom;
 
@@ -57,7 +63,13 @@
                         .attr('y', 30).attr('x', 10)
                         .attr('alignment-baseline', 'middle')
                         .attr('fill', '#5e0606')
-                        .style('font-size', '1.5rem')
+                        .style('font-size', function () {
+                            if (window.innerWidth <= 625) {
+                                return '1rem';
+                            } else {
+                                return '1.5rem';
+                            }
+                        })
                         .style('font-weight', 700);
                 });
             const oilCrisis = chartHolder.append('g').attr('class', 'oilCrisis')
@@ -70,10 +82,22 @@
                 })
                 .call(function (g) {
                     g.append('text').text('Oil crisis')
-                        .attr('y', 30).attr('x', -75)
+                        .attr('y', 30).attr('x', function () {
+                            if (window.innerWidth <= 625) {
+                                return -50;
+                            } else {
+                                return -75;
+                            }
+                        })
                         .attr('alignment-baseline', 'middle')
                         .attr('fill', '#5e0606')
-                        .style('font-size', '1.5rem')
+                        .style('font-size', function () {
+                            if (window.innerWidth <= 625) {
+                                return '1rem';
+                            } else {
+                                return '1.5rem';
+                            }
+                        })
                         .style('font-weight', 700);
                 });
         } ();

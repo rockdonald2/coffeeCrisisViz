@@ -7,6 +7,19 @@
     /* alapvető változók */
     viz.TRANS_DURATION = 750;
 
+    /* double tap fill */
+    d3.selection.prototype.dblTap = function (callback) {
+        var last = 0;
+        return this.each(function () {
+            d3.select(this).on("touchstart", function (e) {
+                if ((d3.event.timeStamp - last) < 500) {
+                    return callback(e);
+                }
+                last = d3.event.timeStamp;
+            });
+        });
+    };
+
     /* lehetővé teszi, hogy crossfilter-rel több év/régió/rezsim szerint szűrjük az adatainkat */
     viz.multivalue_filter = function (values) {
         return function (v) {
@@ -70,14 +83,31 @@
     };
 
     viz.makeLegend = function (svg, dimensions, title, subTitle) {
-        const legend = svg.append('g').attr('class', 'legend').attr('transform', 'translate(' + dimensions.margin.left + ', 50)');
+        const legend = svg.append('g').attr('class', 'legend').attr('transform', 'translate(' + (window.innerWidth <= 850 ? 10 : dimensions.margin.left) + ', 50)');
+
+        let fontSize = {
+            'title': '2.6rem',
+            'subtitle': '1.3rem'
+        };
+
+        if (window.innerWidth > 625 && window.innerWidth <= 850) {
+            fontSize = {
+                'title': '1.6rem',
+                'subtitle': '1rem'
+            };
+        } else if (window.innerWidth <= 625) {
+            fontSize = {
+                'title': '1.2rem',
+                'subtitle': '1rem'
+            };
+        }
 
         const titleGroup = legend.append('g').attr('class', 'titleGroup')
             .call(function (g) {
-                g.append('text').text(title).style('font-size', '2.6rem')
+                g.append('text').text(title).style('font-size', fontSize.title)
                     .style('font-weight', 700);
                 g.append('text').text(subTitle).attr('y', 32)
-                    .style('font-weight', 700).style('font-size', '1.3rem').attr('opacity', .5);
+                    .style('font-weight', 700).style('font-size', fontSize.subtitle).attr('opacity', .5);
             });
 
         return legend;
@@ -110,15 +140,33 @@
             .attr('stroke-opacity', .75);
         const xTicks = xAxis.selectAll('.x-tick').data(ticksX)
             .enter().append('g').attr('class', 'x-tick')
+            .attr('transform', function (d) {
+                if (window.innerWidth <= 850) {
+                    return 'translate(' + scaleX(d) + ', 20)';
+                } else {
+                    return 'translate(' + scaleX(d) + ', 20)';
+                }
+            })
             .call(function (g) {
                 g.append('text').text(function (d) {
                         return formatX(d);
-                    }).attr('y', 20).attr('x', scaleX)
-                    .style('font-size', '1.5rem')
+                    })
+                    .style('font-size', function () {
+                        if (window.innerWidth <= 850) {
+                            return '1rem';
+                        } else {
+                            return '1.5rem';
+                        }
+                    })
                     .style('font-weight', 700)
                     .attr('fill', '#222')
                     .attr('opacity', .75)
-                    .attr('text-anchor', 'middle');
+                    .attr('text-anchor', 'middle')
+                    .attr('transform', function () {
+                        if (window.innerWidth <= 850) {
+                            return 'rotate(60)';
+                        }
+                    });
             });
 
         const yAxis = svg.append('g').attr('class', 'y-axis').attr('transform', 'translate(' + dimensions.margin.left + ', ' + dimensions.margin.top + ')');
@@ -144,7 +192,13 @@
                         return formatY(d);
                     }).attr('y', scaleY)
                     .attr('x', -10)
-                    .style('font-size', '1.5rem')
+                    .style('font-size', function () {
+                        if (window.innerWidth > 850) {
+                            return '1.5rem';
+                        } else {
+                            return '1rem';
+                        }
+                    })
                     .style('font-weight', 700)
                     .attr('fill', '#222')
                     .attr('opacity', .75)
@@ -195,11 +249,23 @@
             .attr('r', 4)
             .attr('fill', '#222');
         dot.append('text').attr('id', 'topText')
-            .style('font-size', '1.5rem')
+            .style('font-size', function () {
+                if (window.innerWidth <= 850) {
+                    return '1rem';
+                } else {
+                    return '1.5rem';
+                }
+            })
             .attr('text-anchor', 'middle')
             .attr('y', -10);
         dot.append('text').attr('id', 'bottomText')
-            .style('font-size', '1.5rem')
+            .style('font-size', function () {
+                if (window.innerWidth <= 850) {
+                    return '1rem';
+                } else {
+                    return '1.5rem';
+                }
+            })
             .attr('text-anchor', 'middle')
             .attr('y', function () {
                 if (bottomText) return 20;

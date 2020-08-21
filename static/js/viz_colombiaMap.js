@@ -2,12 +2,39 @@
     'use strict';
 
     const chartContainer = d3.select('#colombiaMap');
-    const margin = {
-        'top': 175,
-        'left': 50,
-        'right': 50,
-        'bottom': 50
-    };
+    let margin = {};
+    if (window.innerWidth < 625) {
+        margin = {
+            'top': 175,
+            'left': -50,
+            'right': 25,
+            'bottom': 50
+        };
+    }
+    else if (window.innerWidth >= 625 && window.innerWidth < 850) {
+        margin = {
+            'top': 175,
+            'left': 50,
+            'right': 50,
+            'bottom': 75
+        };
+    }
+    else if (window.innerWidth >= 850 && window.innerWidth < 1100) {
+        margin = {
+            'top': 150,
+            'left': 50,
+            'right': 50,
+            'bottom': 75
+        };
+    } else {
+        margin = {
+            'top': 75,
+            'left': 50,
+            'right': 50,
+            'bottom': 75
+        };
+    }
+
     const width = parseInt(chartContainer.style('width')) - margin.left - margin.right;
     const height = parseInt(chartContainer.style('height')) - margin.top - margin.bottom;
 
@@ -32,7 +59,8 @@
         const makeLegend = function () {
             const legend = viz.makeLegend(svg, dimensions, 'Colombian cultivated area by region', 'Measured in million hectares | 2002 - 2019');
 
-            const sliderTime = viz.addSliderTime(years, 2019).width(320).on('onchange', function (d) {
+            const responsiveSlider = window.innerWidth <= 850 ? 200 : 320;
+            const sliderTime = viz.addSliderTime(years, 2019).width(responsiveSlider).on('onchange', function (d) {
                 currentYear = d;
                 viz.updateMap3(currentYear);
             });
@@ -40,7 +68,13 @@
                 .attr('transform', 'translate(10, 96)')
                 .call(sliderTime)
                 .call(function (g) {
-                    g.select('.slider .parameter-value text').style('font-size', '1.4rem').style('font-weight', 700).attr('fill', '#222')
+                    g.select('.slider .parameter-value text').style('font-size', function () {
+                        if (window.innerWidth <= 850) {
+                            return '1rem';
+                        } else {
+                            return '1.4rem';
+                        }
+                    }).style('font-weight', 700).attr('fill', '#222')
                         .attr('opacity', .75).attr('dy', '.21em');
                 })
                 .call(function (g) {
@@ -66,7 +100,11 @@
                     g.selectAll('.label-circle').data(data)
                         .enter().append('circle').attr('r', 5)
                         .attr('cx', function (d, i) {
-                            return i * 120;
+                            if (window.innerWidth <= 850) {
+                                return i * 75;
+                            } else {
+                                return i * 120;
+                            }
                         })
                         .attr('fill', function (d) {
                             return d.Color;
@@ -79,10 +117,20 @@
 
                     g.selectAll('.label-text').data(data)
                         .enter().append('text').attr('x', function (d, i) {
-                            return i * 120 + 10;
+                            if (window.innerWidth <= 850) {
+                                return i * 75 + 10;
+                            } else {
+                                return i * 120 + 10;
+                            }
                         }).text(function (d) {
                             return d.Name;
-                        }).attr('opacity', .5).style('font-size', '1.3rem').style('font-weight', 700)
+                        }).attr('opacity', .5).style('font-size', function () {
+                            if (window.innerWidth <= 850) {
+                                return '1rem';
+                            } else {
+                                return '1.3rem';
+                            }
+                        }).style('font-weight', 700)
                         .attr('dy', '.35em');
                 });
         }();
@@ -126,7 +174,7 @@
 
         data.forEach(function (d) {
             chartContainer.select('.chartHolder').select('.region#' + d.Region.toUpperCase())
-                .on('mouseenter', function () {
+                .on('mouseenter touchstart', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
 
                     tooltip.select('.tooltip--heading').html(d.Region).style('background-color', function () {
@@ -144,9 +192,8 @@
                 })
                 .on('mousemove', function () {
                     tooltip.style('left', (d3.event.pageX + 20) + 'px').style('top', (d3.event.pageY + 20) + 'px');
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 1);
                 })
-                .on('mouseleave', function () {
+                .on('mouseleave touchend', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', function () {
                         if (d.Value === null) {
                             return '#ccc';
@@ -154,7 +201,7 @@
                             return colorScale(d.Value);
                         }
                     });
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 0);
+                    tooltip.style('left', '-9999px');
                 })
                 .transition().duration(viz.TRANS_DURATION)
                 .attr('fill', function () {

@@ -4,8 +4,9 @@
     /* alapvető változók */
     const chartContainer = d3.select('#prices');
     const nOfCharts = 2;
+    const responsive = window.innerWidth <= 625 ? 180 : 150;
     const margin = {
-        'top': 150,
+        'top': responsive,
         'left': 50,
         'right': 50,
         'bottom': 50
@@ -37,15 +38,34 @@
             .attr('r', 4)
             .attr('fill', '#222');
         dot.append('text')
-            .style('font-size', '1.5rem')
+            .style('font-size', function () {
+                if (window.innerWidth <= 850) {
+                    return '1rem';
+                } else {
+                    return '1.5rem';
+                }
+            })
             .attr('text-anchor', 'middle')
             .attr('y', -10);
 
         const valueLines = svg.append('g').attr('display', 'none').style('pointer-events', 'none');
         valueLines.append('line').attr('id', 'x-line').attr('stroke', '#222').attr('stroke-width', 1).attr('opacity', .25);
         valueLines.append('line').attr('id', 'y-line').attr('stroke', '#222').attr('stroke-width', 1).attr('opacity', .25);
-        valueLines.append('text').attr('id', 'x-value').style('font-size', '1.5rem').style('font-weight', 700).attr('text-anchor', 'middle');
-        valueLines.append('text').attr('id', 'y-value').style('font-size', '1.5rem')
+        valueLines.append('text').attr('id', 'x-value').style('font-size', function () {
+                if (window.innerWidth <= 850) {
+                    return '1rem';
+                } else {
+                    return '1.5rem';
+                }
+            })
+            .style('font-weight', 700).attr('text-anchor', 'middle');
+        valueLines.append('text').attr('id', 'y-value').style('font-size', function () {
+                if (window.innerWidth <= 850) {
+                    return '1rem';
+                } else {
+                    return '1.5rem';
+                }
+            })
             .style('font-weight', 700).attr('dy', '.32em').attr('text-anchor', 'end');
 
         function moved() {
@@ -137,8 +157,8 @@
 
     const makeData = function (collection) {
         return d3.nest().key(function (d) {
-            return d.Code;
-        }).entries(collection)
+                return d.Code;
+            }).entries(collection)
             .map(function (d) {
                 return {
                     'key': d.key,
@@ -168,10 +188,67 @@
         const mouseArea = viz.addMouseArea(svg, dimensions);
 
         const makeLegend = function () {
-            const legend = viz.makeLegend(svg, dimensions, 'Prices paid to growers by coffee plant type', 'Measured in cents per pounds | 1990-2018').attr('transform', 'translate(' + dimensions.margin.left + ', ' + (75) + ')');
+            let legendMargins = {};
+            if (window.innerWidth > 1350) {
+                legendMargins = {
+                    'top': 75,
+                    'left': dimensions.margin.left
+                };
+            } else if (window.innerWidth > 1100 && window.innerWidth <= 1350) {
+                legendMargins = {
+                    'top': 50,
+                    'left': dimensions.margin.left
+                };
+            } else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+                legendMargins = {
+                    'top': 50,
+                    'left': dimensions.margin.left
+                };
+            } else {
+                legendMargins = {
+                    'top': 50,
+                    'left': 10
+                };
+            }
 
+            const legend = viz.makeLegend(svg, dimensions, 'Prices paid to growers by coffee plant type', 'Measured in cents per pounds | 1990-2018').attr('transform', 'translate(' + legendMargins.left + ', ' + legendMargins.top + ')');
+
+            let typeMargins = {};
+            if (window.innerWidth > 1350) {
+                typeMargins = {
+                    'left': width / 2,
+                    'top': -15,
+                    'difference': [160, 170, 175],
+                    'differenceText': 20,
+                    'fontSize': '1.5rem'
+                };
+            } else if (window.innerWidth > 1100 && window.innerWidth <= 1350) {
+                typeMargins = {
+                    'left': width / 2 - 25,
+                    'top': -15,
+                    'difference': [130, 140, 145],
+                    'differenceText': 20,
+                    'fontSize': '1.5rem'
+                };
+            } else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+                typeMargins = {
+                    'left': 0,
+                    'top': 55,
+                    'difference': [130, 140, 145],
+                    'differenceText': 20,
+                    'fontSize': '1.5rem'
+                };
+            } else {
+                typeMargins = {
+                    'left': 0,
+                    'top': 55,
+                    'difference': [110, 120, 125],
+                    'differenceText': 20,
+                    'fontSize': '1rem'
+                };
+            }
             const typeGroup = legend.append('g').attr('class', 'typeGroup')
-                .attr('transform', 'translate(' + (width / 2) + ', ' + (-15) + ')');
+                .attr('transform', 'translate(' + (typeMargins.left) + ', ' + (typeMargins.top) + ')');
             typeGroup.selectAll('type').data(types).enter().append('g')
                 .attr('id', function (d) {
                     return d.split(' ')[0];
@@ -184,9 +261,21 @@
                             return '#666';
                         })
                         .attr('x', function (d, i) {
-                            if (i === 2) return i * 160;
-                            else if (i === 3) return i * 170;
-                            return i * 175;
+                            if (window.innerWidth <= 625) {
+                                if (i >= 2) {
+                                    if (i === 2) return (i - 2) * typeMargins.difference[0];
+                                    else return (i - 2) * typeMargins.difference[2];
+                                } else return i * typeMargins.difference[2];
+                            } else {
+                                if (i === 2) return i * typeMargins.difference[0];
+                                else if (i === 3) return i * typeMargins.difference[1];
+                                return i * typeMargins.difference[2];
+                            }
+                        })
+                        .attr('y', function (d, i) {
+                            if (window.innerWidth <= 625) {
+                                if (i >= 2) return 32;
+                            }
                         });
                 })
                 .call(function (g) {
@@ -198,12 +287,27 @@
 
                             return '#222';
                         })
-                        .attr('transform', function (d, i) {
-                            if (i === 2) return 'translate(' + (i * 160 + 25) + ', 8)';
-                            else if (i === 3) return 'translate(' + (i * 170 + 25) + ', 8)';
-                            else return 'translate(' + (i * 175 + 25) + ', 8)';
+                        .attr('x', function (d, i) {
+                            if (window.innerWidth <= 625) {
+                                if (i >= 2) {
+                                    if (i === 2) return (i - 2) * typeMargins.difference[0] + typeMargins.differenceText;
+                                    else return (i - 2) * typeMargins.difference[2] + typeMargins.differenceText;
+                                } else return i * typeMargins.difference[2] + typeMargins.differenceText;
+                            } else {
+                                if (i === 2) return i * typeMargins.difference[0] + typeMargins.differenceText;
+                                else if (i === 3) return i * typeMargins.difference[1] + typeMargins.differenceText;
+                                else return i * typeMargins.difference[2] + typeMargins.differenceText;
+                            }
+                        })
+                        .attr('y', function (d, i) {
+                            if (window.innerWidth <= 625) {
+                                if (i >= 2) return 32 + 8;
+                                else return 8;
+                            } else {
+                                return 8;
+                            }
                         }).attr('dy', '.38em')
-                        .style('font-size', '1.5rem')
+                        .style('font-size', typeMargins.fontSize)
                         .style('font-weight', 700);
                 })
                 .on('mouseover', function (d) {
@@ -255,7 +359,12 @@
 
     viz.initLineChart2 = function () {
         const dimensions = viz.makeDimensionsObj(width, height, margin);
-        
+        if (window.innerWidth > 625 && window.innerWidth <= 850) {
+            dimensions.margin.top = dimensions.margin.top - 25;
+        } else if (window.innerWidth <= 625) {
+            dimensions.margin.top = dimensions.margin.top - 50;
+        }
+
         const scaleTime = s_scaleTime.copy().domain(d3.extent(viz.data.retailPrices, function (d) {
             return d.Year;
         }));

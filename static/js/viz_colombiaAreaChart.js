@@ -3,8 +3,8 @@
 
     const chartContainer = d3.select('#colombiaAreaChart');
     const margin = {
-        'top': 125,
-        'left': 75,
+        'top': 100,
+        'left': 50,
         'right': 50,
         'bottom': 50
     };
@@ -28,15 +28,26 @@
     const makeXAxis = function (g) {
         g.call(d3.axisBottom(scaleTime));
         g.call(function (g) {
-            g.attr('font-family', null).attr('font-size', null).attr('fill', null);
+            g.attr('font-family', null).attr('font-size', null).attr('fill', null).attr('text-anchor', 'start');
             g.select('.domain').remove();
             g.selectAll('.tick').attr('opacity', null);
             g.selectAll('.x-axis line').remove();
-            g.selectAll('.x-axis text').style('font-size', '1.5rem')
+            g.selectAll('.x-axis text').style('font-size', function () {
+                    if (window.innerWidth <= 850) {
+                        return '1rem';
+                    } else {
+                        return '1.5rem';
+                    }
+                })
                 .style('font-weight', 700).attr('fill', '#222')
                 .attr('opacity', 0.75)
                 .attr('text-anchor', 'middle')
-                .attr('y', 10);
+                .attr('y', 10)
+                .call(function (g) {
+                    if (window.innerWidth <= 850) {
+                        g.attr('transform', 'translate(10, 20) rotate(60)');
+                    }
+                });
         });
     };
 
@@ -53,6 +64,12 @@
         /* svg */
         const svg = viz.addSvg(chartContainer, dimensions);
         svg.on('dblclick', function () {
+            scaleTime.domain(d3.extent(viz.data.colombiaProduction, function (d) {
+                return d.Year;
+            }));
+            svg.select('.x-axis').call(makeXAxis);
+            chartHolder.select('.area').transition().duration(viz.TRANS_DURATION).attr('d', areaGenerator);
+        }).dblTap(function () {
             scaleTime.domain(d3.extent(viz.data.colombiaProduction, function (d) {
                 return d.Year;
             }));
@@ -115,7 +132,13 @@
 
                             return d;
                         }).attr('fill', '#222').attr('opacity', .75)
-                        .attr('x', -10).attr('y', scaleValue).style('font-size', '1.5rem').style('font-weight', 700).attr('text-anchor', 'end').attr('dy', '.32em');
+                        .attr('x', -10).attr('y', scaleValue).style('font-size', function () {
+                            if (window.innerWidth <= 850) {
+                                return '1rem';
+                            } else {
+                                return '1.5rem';
+                            }
+                        }).style('font-weight', 700).attr('text-anchor', 'end').attr('dy', '.32em');
                 });
             const meanLine = function () {
                 yAxis.append('g').attr('class', 'meanGroup')
@@ -129,7 +152,7 @@
             }();
         }();
 
-        viz.makeLegend(svg, dimensions, 'Colombian monthly production of coffee', 'Measured in thousand 60kg bags | 1956 January - 2020 June | Brushable chart | Double click to reset zoom')
+        viz.makeLegend(svg, dimensions, 'Colombian monthly production of coffee', 'Measured in thousand 60kg bags | 1956 January - 2020 June');
 
         const makeChart = function () {
             chartHolder.append('path').datum(data)

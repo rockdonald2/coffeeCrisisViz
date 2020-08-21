@@ -19,4 +19,8 @@
         margin: 2rem auto 0 auto;
         line-height: 1.25;
     }
+
+    @media screen and (max-width: 850px) {
+        grid-column: 1 / -1;
+    }
 }

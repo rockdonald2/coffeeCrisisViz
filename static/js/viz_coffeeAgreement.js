@@ -32,28 +32,122 @@
         const chartHolder = viz.addChartHolder(svg, dimensions);
 
         /* térképgenerálás */
-        const projection = d3.geoNaturalEarth1().center([20, 20]).scale(210);
+        let centerPoz = null;
+        let scalePoz = null;
+        if (window.innerWidth > 1350) {
+            centerPoz = [20, 20];
+            scalePoz = 210;
+        } else if (window.innerWidth > 1100 && window.innerWidth <= 1350) {
+            centerPoz = [55, -15];
+            scalePoz = 140;
+        } else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+            centerPoz = [75, -15];
+            scalePoz = 150;
+        } else if (window.innerWidth > 625 && window.innerWidth <= 850 ) {
+            centerPoz = [175, -15];
+            scalePoz = 115;
+        } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
+            centerPoz = [325, -40];
+            scalePoz = 80;
+        } else {
+            centerPoz = [359, -40];
+            scalePoz = 80;
+        }
+        const projection = d3.geoNaturalEarth1().center(centerPoz).scale(scalePoz);
         const path = d3.geoPath().projection(projection);
 
         const makeLegend = function () {
-            const legend = viz.makeLegend(svg, dimensions, 'International Coffee Agreement', 'Total exports and imports measured in thousand 60kg bags | 1990-2018')
-                .attr('transform', 'translate(' + margin.left + ', 60)');
+            let legendMargins = {};
+            let legendMarginTop = null;
+            if (window.innerWidth > 1350) {
+                legendMargins = {
+                    'top': 60,
+                    'left': margin.left
+                };
+            } else if (window.innerWidth > 1100 && window.innerWidth <= 1350) {
+                legendMargins = {
+                    'top': 45,
+                    'left': margin.left
+                };
+            } else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+                legendMargins = {
+                    'top': 45,
+                    'left': margin.left
+                };
+            } else if (window.innerWidth > 625 && window.innerWidth <= 850) {
+                legendMargins = {
+                    'top': 45,
+                    'left': 10
+                };
+            } else {
+                legendMargins = {
+                    'top': 35,
+                    'left': 10
+                };
+            }
 
-            const sliderTime = viz.addSliderTime(years, 2018).width(340).on('onchange', function (d) {
+            const legend = viz.makeLegend(svg, dimensions, 'International Coffee Agreement', 'Total exports and imports measured in thousand 60kg bags | 1990-2018')
+                .attr('transform', 'translate(' + legendMargins.left + ', ' + legendMargins.top + ')');
+
+            let sliderWidth = null;
+            if (window.innerWidth > 1350) {
+                sliderWidth = 340;
+            } else if (window.innerWidth > 1100 && window.innerWidth <= 1350) {
+                sliderWidth = 300;
+            } else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+                sliderWidth = 280;
+            } else {
+                sliderWidth = 180;
+            }
+
+            const sliderTime = viz.addSliderTime(years, 2018).width(sliderWidth).on('onchange', function (d) {
                 currentYear = d;
                 viz.updateMap2(currentYear);
             });
-            const sliderGroup = legend.append('g').attr('class', 'sliderGroup').attr('transform', 'translate(' + dimensions.width * 0.55 + ', -8)')
+
+            let sliderPos = null;
+            if (window.innerWidth > 850) {
+                sliderPos = {
+                    'left': dimensions.width * 0.55,
+                    'top': -8
+                };
+            } else {
+                sliderPos = {
+                    'left': 10,
+                    'top': 96
+                };
+            }
+
+            const sliderGroup = legend.append('g').attr('class', 'sliderGroup').attr('transform', 'translate(' + sliderPos.left + ', ' + sliderPos.top + ')')
                 .call(sliderTime)
                 .call(function (g) {
-                    g.select('.slider .parameter-value text').style('font-size', '1.4rem').style('font-weight', 700).attr('fill', '#222')
+                    g.select('.slider .parameter-value text').style('font-size', function () {
+                        if (window.innerWidth <= 850) {
+                            return '1rem';
+                        } else {
+                            return '1.4rem';
+                        }
+                    }).style('font-weight', 700).attr('fill', '#222')
                         .attr('opacity', .75).attr('dy', '.15em');
                 })
                 .call(function (g) {
                     g.selectAll('.slider line').attr('opacity', .75);
                 });
 
-            const colorGroup = legend.append('g').attr('class', 'colorGroup').attr('transform', 'translate(' + dimensions.width * 0.63 + ', 29)')
+            let colorPos = null;
+            if (window.innerWidth > 850) {
+                colorPos = {
+                    'left': dimensions.width * 0.63,
+                    'top': 29
+                };
+            } else {
+                colorPos = {
+                    'left': 5,
+                    'top': 64
+                };
+            }
+
+            const colorGroup = legend.append('g').attr('class', 'colorGroup').attr('transform', 'translate(' + colorPos.left + ', ' + colorPos.top + ')')
                 .call(function (g) {
                     g.selectAll('circle').data(colorScale.domain()).enter().append('circle').attr('r', 5)
                         .attr('fill', colorScale).attr('cx', function (d, i) {
@@ -61,7 +155,13 @@
                         });
                     g.selectAll('text').data(colorScale.domain()).enter().append('text').text(function (d) {
                             return d;
-                        }).style('font-size', '1.3rem').attr('opacity', .5)
+                        }).style('font-size', function () {
+                            if (window.innerWidth <= 850) {
+                                return '1rem';
+                            } else {
+                                return '1.3rem';
+                            }
+                        }).attr('opacity', .5)
                         .style('font-weight', 700).attr('x', function (d, i) {
                             return i * 125 + 10;
                         }).attr('dy', '.35em');
@@ -139,7 +239,7 @@
 
         dataImport.forEach(function (d) {
             chartContainer.select('.chartHolder').selectAll('.country#' + d.Code)
-                .on('mouseenter', function () {
+                .on('mouseenter touchstart', function () {
                     const curr = d3.select(this);
 
                     if (curr.attr('id') === 'EAU') {
@@ -161,15 +261,14 @@
                         });
                 })
                 .on('mousemove', function () {
-                    if (d3.event.pageX >= width) {
+                    if (d3.event.pageX >= width * 0.75) {
                         tooltip.style('left', (d3.event.pageX - parseInt(tooltip.style('width')) - 20) + 'px');
                     } else {
                         tooltip.style('left', (d3.event.pageX + 20) + 'px');
                     }
                     tooltip.style('top', (d3.event.pageY + 20) + 'px');
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 1);
                 })
-                .on('mouseleave', function () {
+                .on('mouseleave touchend', function () {
                     const curr = d3.select(this);
 
                     if (curr.attr('id') === 'EAU') {
@@ -178,7 +277,7 @@
                         curr.transition().duration(viz.TRANS_DURATION / 5).attr('fill', colorScale('Importing'));
                     }
 
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 0);
+                    tooltip.style('left', '-9999px');
                 })
                 .transition().duration(viz.TRANS_DURATION)
                 .attr('fill', colorScale('Importing'));

@@ -7,7 +7,7 @@
         'top': 100,
         'left': 50,
         'right': 0,
-        'bottom': 25
+        'bottom': 50
     }
     /* méretek */
     const width = boundingRect.width - margin.left - margin.right;
@@ -32,30 +32,99 @@
         /* chartHolder */
         const chartHolder = viz.addChartHolder(svg, dimensions);
 
+        /* path */
+        let centerPoz = null;
+        let scalePoz = null;
+        if (window.innerWidth > 1350) {
+            centerPoz = [65, 60];
+            scalePoz = 170;
+        } else if (window.innerWidth > 1100 && window.innerWidth <= 1350) {
+            centerPoz = [110, 30];
+            scalePoz = 135;
+        } else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+            centerPoz = [175, 55];
+            scalePoz = 105;
+        } else if (window.innerWidth > 625 && window.innerWidth <= 850){
+            centerPoz = [160, 0];
+            scalePoz = 110;
+        } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
+            centerPoz = [255, -10];
+            scalePoz = 80;
+        } else {
+            centerPoz = [295, -10];
+            scalePoz = 75;
+        }
+        const projection = d3.geoMercator().center(centerPoz).scale(scalePoz);
+        const path = d3.geoPath().projection(projection);
+
         const graticuleHolder = chartHolder.append('g').attr('class', 'graticuleHolder')
         const graticuleTextHolder = chartHolder.append('g').attr('class', 'graticuleTextHolder');
-
-        /* path */
-        const projection = d3.geoMercator().center([65, 60]).scale(170);
-        const path = d3.geoPath().projection(projection);
 
         /* graticule */
         const graticule = d3.geoGraticule().step([5, 5]);
 
         const makeLegend = function () {
+            let legendMargins = {};
+            let legendMarginTop = null;
+            if (window.innerWidth > 1350) {
+                legendMargins = {
+                    'top': 100,
+                    'left': 2 * dimensions.margin.left
+                };
+            } else if (window.innerWidth > 1100 && window.innerWidth <= 1350) {
+                legendMargins = {
+                    'top': 125,
+                    'left': 2 * dimensions.margin.left
+                };
+            } else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+                legendMargins = {
+                    'top': 150,
+                    'left': 2 * dimensions.margin.left
+                };
+            } else if (window.innerWidth > 625 && window.innerWidth <= 850) {
+                legendMargins = {
+                    'top': 75,
+                    'left': 2 * dimensions.margin.left
+                };
+            } else {
+                legendMargins = {
+                    'top': 75,
+                    'left': dimensions.margin.left
+                };
+            }
+
             const legend = viz.makeLegend(svg, dimensions, 'Major coffee producers', 'Measured in thousand 60kg bags')
-                .attr('transform', 'translate(' + (2 * dimensions.margin.left) + ', 100)');
+                .attr('transform', 'translate(' + legendMargins.left + ', ' + legendMargins.top + ')');
 
             legend.select('.titleGroup')
                 .call(function (g) {
                     g.insert('rect', 'text')
                         .attr('width', 32).attr('height', 32)
-                        .attr('x', -42).attr('y', -27)
+                        .attr('x', -42).attr('y', function () {
+                            if (window.innerWidth <= 850) {
+                                return -22;
+                            } else {
+                                return -27;
+                            }
+                        })
                         .attr('fill', '#7f2c2c')
                         .attr('opacity', .75);
                 });
 
-            const sliderTime = viz.addSliderTime(years, 2018).width(280).on('onchange', function (d) {
+            let sliderWidth = null;
+            if (window.innerWidth > 1350) {
+                sliderWidth = 270;
+            } else if (window.innerWidth > 1100 && window.innerWidth <= 1350) {
+                sliderWidth = 210;
+            } else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+                sliderWidth = 210;
+            } else if (window.innerWidth > 625 && window.innerWidth <= 850) {
+                sliderWidth = 160;
+            } else {
+                sliderWidth = 125;
+            }
+
+            const sliderTime = viz.addSliderTime(years, 2018).width(sliderWidth).on('onchange', function (d) {
                 currentYear = d;
                 viz.updateMap1(currentYear);
             });
@@ -63,7 +132,13 @@
                 .attr('transform', 'translate(10, 64)')
                 .call(sliderTime)
                 .call(function (g) {
-                    g.select('.slider .parameter-value text').style('font-size', '1.4rem').style('font-weight', 700).attr('fill', '#222')
+                    g.select('.slider .parameter-value text').style('font-size', function () {
+                        if (window.innerWidth <= 850) {
+                            return '1rem';
+                        } else {
+                            return '1.4rem';
+                        }
+                    }).style('font-weight', 700).attr('fill', '#222')
                         .attr('opacity', .75).attr('dy', '.21em');
                 })
                 .call(function (g) {
@@ -89,6 +164,19 @@
                 .attr('stroke-linejoin', 'round')
                 .attr('stroke-linecap', 'round')
                 .attr('stroke-dasharray', '.75rem');
+
+            let differenceDistanceFromLeftSide = null;
+            if (window.innerWidth > 1100) {
+                differenceDistanceFromLeftSide = 100;
+            } else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+                differenceDistanceFromLeftSide = 75;
+            } else if (window.innerWidth > 625 && window.innerWidth <= 850) {
+                differenceDistanceFromLeftSide = 50;
+            } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
+                differenceDistanceFromLeftSide = 60;
+            } else {
+                differenceDistanceFromLeftSide = 70;
+            }
 
             graticuleTextHolder.selectAll('text').data(graticule.lines())
                 .enter().append('text').text(function (d) {
@@ -118,7 +206,7 @@
                     const c = d.coordinates;
                     const p = projection(c[0]);
 
-                    return 'translate(' + (p[0] + width / 2 + 100) + ', ' + (p[1]) + ')';
+                    return 'translate(' + (p[0] + width / 2 + differenceDistanceFromLeftSide) + ', ' + (p[1]) + ')';
                 })
                 .style('font-size', '1.3rem')
                 .style('font-weight', 700);
@@ -170,7 +258,7 @@
 
         data.forEach((d) => {
             chartContainer.select('.chartHolder').select('.country#' + d.Code)
-                .on('mouseenter', function () {
+                .on('mouseenter touchstart', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
 
                     tooltip.select('.tooltip--heading')
@@ -192,16 +280,14 @@
                         });
                 })
                 .on('mousemove', function () {
-                    if (d3.event.pageX >= width) {
+                    if (d3.event.pageX >= width * 0.75) {
                         tooltip.style('left', (d3.event.pageX - parseInt(tooltip.style('width')) - 20) + 'px');
                     } else {
                         tooltip.style('left', (d3.event.pageX + 20) + 'px');
                     }
                     tooltip.style('top', (d3.event.pageY + 20) + 'px');
-
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 1);
                 })
-                .on('mouseleave', function () {
+                .on('mouseleave touchend', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', function () {
                         if (d.Value === 0) {
                             return '#ccc';
@@ -209,7 +295,7 @@
                             return colorScale(d.Value);
                         }
                     });
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 0);
+                    tooltip.style('left', '-9999px');
                 })
                 .transition().duration(viz.TRANS_DURATION)
                 .attr('fill', function () {

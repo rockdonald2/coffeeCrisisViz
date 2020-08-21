@@ -2,12 +2,21 @@
     'use strict';
 
     const chartContainer = d3.select('#colombiaGdp');
-    const margin = {
+    let margin = {
         'top': 165,
         'left': 100,
         'right': 50,
         'bottom': 60
     };
+    if (window.innerWidth < 850) {
+        margin = {
+            'top': 150,
+            'left': 50,
+            'right': 50,
+            'bottom': 50
+        };
+    }
+
     const width = parseInt(chartContainer.style('width')) - margin.left - margin.right;
     const height = parseInt(chartContainer.style('height')) - margin.top - margin.bottom;
 
@@ -47,14 +56,14 @@
                 d3.format('d'),
                 d3.format('.0%'));
 
-            svg.select('.x-axis').selectAll('text').attr('x', function (d) {
+            svg.select('.x-axis').selectAll('.x-tick').attr('transform', 'translate(0, 20)').selectAll('text').attr('x', function (d) {
                 return scaleYear(d) + scaleYear.bandwidth() / 2;
-            });
+            }).attr('transform', null);
         }();
 
         /* jelmagyarázat */
         const makeLegend = function () {
-            const legend = viz.makeLegend(svg, dimensions, 'Colombian GDP by sector', 'Measured in percentage | 2009 - 2019 | Figures have been rounded | Percentages do not add up to 100%');
+            const legend = viz.makeLegend(svg, dimensions, 'Colombian GDP by sector', 'Measured in percentage | 2009 - 2019');
 
             const circleGroup = legend.append('g').attr('class', 'circleGroup')
                 .attr('transform', 'translate(5, 64)')
@@ -62,14 +71,28 @@
                 .enter().append('g').attr('class', 'group')
                 .call(function (g) {
                     g.append('circle').attr('r', 5).attr('cx', function (d, i) {
-                        return i * 125;
+                        if (window.innerWidth <= 850) {
+                            return i * 75;
+                        } else {
+                            return i * 125;
+                        }
                     }).attr('fill', colorScale);
                     g.append('text').text(function (d) {
                             return d;
                         }).attr('x', function (d, i) {
-                            return i * 125 + 10;
+                            if (window.innerWidth <= 850) {
+                                return i * 75 + 10;
+                            } else {
+                                return i * 125 + 10;
+                            }
                         }).attr('dy', '.35em')
-                        .style('font-size', '1.3rem').style('font-weight', 700).attr('opacity', .5);
+                        .style('font-size', function () {
+                            if (window.innerWidth <= 850) {
+                                return '1rem';
+                            } else {
+                                return '1.3rem';
+                            }
+                        }).style('font-weight', 700).attr('opacity', .5);
                 });
         }();
 
@@ -97,7 +120,7 @@
                 .attr('height', function (d) {
                     return scalePerc(d[0]) - scalePerc(d[1]);
                 })
-                .on('mouseenter', function (d) {
+                .on('mouseenter touchstart', function (d) {
                     chartHolder.selectAll('.rect').transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 0.5);
                     chartHolder.selectAll('.rect__' + d.key).transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 1);
 
@@ -112,18 +135,17 @@
                     tooltip.select('p.tooltip--info__agriculture span.tooltip--info__text').html((d.data.Agriculture * 100).toFixed(2) + '%');
                     tooltip.select('p.tooltip--info__agriculture span.tooltip--info__circle').style('background-color', colorScale('Agriculture'));
                 })
-                .on('mouseleave', function (d) {
-                    chartHolder.selectAll('.rect').transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 1);
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 0);
-                })
                 .on('mousemove', function (d) {
-                    if (d3.event.pageX >= width) {
+                    if (d3.event.pageX >= width * 0.75) {
                         tooltip.style('left', (d3.event.pageX - parseInt(tooltip.style('width')) - 20) + 'px');
                     } else {
                         tooltip.style('left', (d3.event.pageX + 20) + 'px');
                     }
                     tooltip.style('top', (d3.event.pageY + 20) + 'px');
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 1);
+                    tooltip.style('left', '-9999px');
+                })
+                .on('mouseleave touchend', function (d) {
+                    chartHolder.selectAll('.rect').transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 1);
                 });
         }();
     }

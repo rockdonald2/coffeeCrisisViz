@@ -2,8 +2,9 @@
     'use strict';
 
     const chartContainer = d3.select('#exporterPercAndTemp');
+    const responsive = window.innerWidth <= 850 ? 250 : 220;
     const margin = {
-        'top': 220,
+        'top': responsive,
         'left': 50,
         'right': 50,
         'bottom': 50
@@ -56,7 +57,13 @@
             .text(function (d) {
                 return d.toFixed(0) + (plot === 'temperature' ? '°C' : ' mm');
             })
-            .style('font-size', '1.5rem').style('font-weight', 700)
+            .style('font-size', function () {
+                if (window.innerWidth <= 850) {
+                    return '1rem';
+                } else {
+                    return '1.5rem';
+                }
+            }).style('font-weight', 700)
             .transition().duration(viz.TRANS_DURATION)
             .attr('opacity', 1)
             .attr('y', -20).attr('x', currentScale)
@@ -95,6 +102,24 @@
         const makeLegend = function () {
             const legend = viz.makeLegend(svg, dimensions, 'Average annual temperature/precipitation in exporting countries', 'Measured in celsius degrees or mm | seperated into average groups | 1920-2100');
 
+            let averageMargins = null;
+            if (window.innerWidth <= 625) {
+                averageMargins = {
+                    'difference': 65,
+                    'differenceText': 10
+                };
+            }
+            else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+                averageMargins = {
+                    'difference': 75,
+                    'differenceText': 10
+                };
+            } else {
+                averageMargins = {
+                    'difference': 100,
+                    'differenceText': 10
+                };
+            }
             const averageGroup = legend.append('g').attr('class', 'averageGroup')
                 .attr('transform', 'translate(5, 64)')
                 .selectAll('.group').data(domainOfTimes)
@@ -104,20 +129,89 @@
                             return colorScale(d);
                         })
                         .attr('cx', function (d, i) {
-                            return i * 100;
+                            if (window.innerWidth <= 850) {
+                                if (i >= 4) {
+                                    return (i - 4) * averageMargins.difference;
+                                } else {
+                                    return i * averageMargins.difference;
+                                }
+                            }
+
+                            return i * averageMargins.difference;
+                        })
+                        .attr('cy', function (d, i) {
+                            if (window.innerWidth <= 850) {
+                                if (i >= 4) {
+                                    return 32;
+                                }
+                            }
                         });
                 })
                 .call(function (g) {
                     g.append('text').text(function (d) {
                             return d;
-                        }).style('font-size', '1.3rem')
+                        }).style('font-size', function () {
+                            if (window.innerWidth <= 850) {
+                                return '1rem';
+                            } else {
+                                return '1.3rem';
+                            }
+                        })
                         .attr('x', function (d, i) {
-                            return i * 100 + 10;
-                        }).attr('dy', '.32em').attr('opacity', .5).style('font-weight', 700);
+                            if (window.innerWidth <= 850) {
+                                if (i >= 4) {
+                                    return (i - 4) * averageMargins.difference + averageMargins.differenceText;
+                                } else {
+                                    return i * averageMargins.difference + averageMargins.differenceText;
+                                }
+                            }
+
+                            return i * averageMargins.difference + averageMargins.differenceText;
+                        })
+                        .attr('y', function (d, i) {
+                            if (window.innerWidth <= 850) {
+                                if (i >= 4) {
+                                    return 32;
+                                }
+                            }
+                        })
+                        .attr('dy', '.32em').attr('opacity', .5).style('font-weight', 700);
                 });
 
+            let selectionMargins = null;
+            if (window.innerWidth <= 625) {
+                selectionMargins = {
+                    'marginTop': 128,
+                    'difference': 100,
+                    'differenceText': 15,
+                    'fontSize': '1rem'
+                };
+            }
+            else if (window.innerWidth > 625 &&window.innerWidth <= 850) {
+                selectionMargins = {
+                    'marginTop': 128,
+                    'difference': 100,
+                    'differenceText': 15,
+                    'fontSize': '1rem'
+                };
+            }
+            else if (window.innerWidth > 850 && window.innerWidth <= 1100) {
+                selectionMargins = {
+                    'marginTop': 96,
+                    'difference': 100,
+                    'differenceText': 15,
+                    'fontSize': '1.2rem'
+                };
+            } else {
+                selectionMargins = {
+                    'marginTop': 96,
+                    'difference': 100,
+                    'differenceText': 15,
+                    'fontSize': '1.1rem'
+                };
+            }
             const selectionGroup = legend.append('g').attr('class', 'selectionGroup')
-                .attr('transform', 'translate(0, 96)')
+                .attr('transform', 'translate(0, ' + selectionMargins.marginTop + ')')
                 .selectAll('.group').data(plots)
                 .enter().append('g').attr('class', 'group')
                 .style('cursor', 'pointer')
@@ -127,7 +221,7 @@
                 .call(function (g) {
                     g.append('rect').attr('width', 10).attr('height', 10)
                         .attr('x', function (d, i) {
-                            return i * 99.5;
+                            return i * (selectionMargins.difference - 0.5);
                         }).attr('fill', function (d, i) {
                             if (d === currentPlot) return '#7f2c2c';
                             else return '#666';
@@ -138,10 +232,10 @@
                             return d[0].toUpperCase() + d.slice(1);
                         })
                         .attr('x', function (d, i) {
-                            return i * 100 + 15;
+                            return i * selectionMargins.difference + selectionMargins.differenceText;
                         })
                         .attr('y', 5)
-                        .attr('dy', '.36em').style('font-weight', 700)
+                        .attr('dy', '.36em').style('font-weight', 700).style('font-size', selectionMargins.fontSize)
                         .attr('fill', function (d) {
                             if (d === currentPlot) return '#7f2c2c';
                             else return '#222';
@@ -180,12 +274,18 @@
                         .attr('fill', 'transparent').style('cursor', 'crosshair');
                 })
                 .call(function (g) {
-                    g.append('text').attr('y', -20).style('text-anchor', 'middle').style('font-size', '1.5rem').style('font-weight', 700)
+                    g.append('text').attr('y', -20).style('text-anchor', 'middle').style('font-size', function () {
+                        if (window.innerWidth <= 850) {
+                            return '1rem';
+                        } else {
+                            return '1.5rem';
+                        }
+                    }).style('font-weight', 700)
                         .style('pointer-events', 'none');
                     g.append('line').attr('y1', -10).attr('y2', height + 25).attr('stroke', '#666').attr('stroke-dasharray', '.75rem')
                         .style('pointer-events', 'none');
                 })
-                .on('mousemove', function () {
+                .on('mousemove touchmove', function () {
                     const mouseCoords = d3.mouse(this);
                     const currentScale = currentPlot === 'temperature' ? scaleTemp : scalePerc;
 
@@ -197,7 +297,7 @@
                             return currentScale.invert(mouseCoords[0]).toFixed(0) + (currentPlot === 'temperature' ? '°C' : ' mm');
                         }).attr('x', mouseCoords[0]);
                 })
-                .on('mouseleave', function () {
+                .on('mouseleave touchend', function () {
                     d3.select(this).select('line').attr('opacity', 0);
                     d3.select(this).select('text').attr('opacity', 0);
                 });
@@ -247,7 +347,13 @@
                             return viz.data.codes[d.key];
                         })
                         .attr('text-anchor', 'end')
-                        .style('font-size', '1.2rem')
+                        .style('font-size', function () {
+                            if (window.innerWidth <= 850) {
+                                return '1rem';
+                            } else {
+                                return '1.2rem';
+                            }
+                        })
                         .transition().duration(viz.TRANS_DURATION)
                         .attr('x', function (d) {
                             return currentScale(d3.min(d.values, function (d) {
