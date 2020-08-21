@@ -85,7 +85,7 @@
 #par3 {
     grid-column: 1 / -1;
     grid-row: span 1;
-    margin-top: 2.5rem;
+    margin-top: 1.5rem;
     display: flex;
     align-items: center;
 
@@ -107,14 +107,13 @@
         }
 
         @media screen and (max-width: 1100px) {
-
             &:nth-of-type(1),
             &:nth-of-type(2) {
                 margin-left: 10rem;
             }
 
             &:nth-of-type(3) {
-                margin: 0 auto;
+                margin: 1.5rem auto 0 auto;
             }
         }
 
@@ -436,7 +435,7 @@
 #par9 {
     grid-column: 1 / -1;
     grid-row: span 1;
-    margin-top: 1.5rem;
+    margin-top: 2.5rem;
     display: flex;
     align-items: flex-start;
     justify-content: space-between;

@@ -47,11 +47,11 @@
             centerPoz = [175, -15];
             scalePoz = 115;
         } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
-            centerPoz = [325, -40];
-            scalePoz = 80;
+            centerPoz = [225, -40];
+            scalePoz = 100;
         } else {
-            centerPoz = [359, -40];
-            scalePoz = 80;
+            centerPoz = [687.5, -40];
+            scalePoz = 82.5;
         }
         const projection = d3.geoNaturalEarth1().center(centerPoz).scale(scalePoz);
         const path = d3.geoPath().projection(projection);
@@ -239,7 +239,7 @@
 
         dataImport.forEach(function (d) {
             chartContainer.select('.chartHolder').selectAll('.country#' + d.Code)
-                .on('mouseenter touchstart', function () {
+                .on('mouseenter touchmove', function () {
                     const curr = d3.select(this);
 
                     if (curr.attr('id') === 'EAU') {

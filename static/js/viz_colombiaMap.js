@@ -174,7 +174,7 @@
 
         data.forEach(function (d) {
             chartContainer.select('.chartHolder').select('.region#' + d.Region.toUpperCase())
-                .on('mouseenter touchstart', function () {
+                .on('mouseenter touchmove', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
 
                     tooltip.select('.tooltip--heading').html(d.Region).style('background-color', function () {

@@ -120,7 +120,7 @@
                 .attr('height', function (d) {
                     return scalePerc(d[0]) - scalePerc(d[1]);
                 })
-                .on('mouseenter touchstart', function (d) {
+                .on('mouseenter touchmove', function (d) {
                     chartHolder.selectAll('.rect').transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 0.5);
                     chartHolder.selectAll('.rect__' + d.key).transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 1);
 
@@ -142,10 +142,10 @@
                         tooltip.style('left', (d3.event.pageX + 20) + 'px');
                     }
                     tooltip.style('top', (d3.event.pageY + 20) + 'px');
-                    tooltip.style('left', '-9999px');
                 })
                 .on('mouseleave touchend', function (d) {
                     chartHolder.selectAll('.rect').transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 1);
+                    tooltip.style('left', '-9999px');
                 });
         }();
     }

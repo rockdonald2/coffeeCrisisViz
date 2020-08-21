@@ -48,10 +48,10 @@
             centerPoz = [160, 0];
             scalePoz = 110;
         } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
-            centerPoz = [255, -10];
-            scalePoz = 80;
+            centerPoz = [210, -10];
+            scalePoz = 90;
         } else {
-            centerPoz = [295, -10];
+            centerPoz = [285, -10];
             scalePoz = 75;
         }
         const projection = d3.geoMercator().center(centerPoz).scale(scalePoz);
@@ -173,9 +173,9 @@
             } else if (window.innerWidth > 625 && window.innerWidth <= 850) {
                 differenceDistanceFromLeftSide = 50;
             } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
-                differenceDistanceFromLeftSide = 60;
+                differenceDistanceFromLeftSide = 50;
             } else {
-                differenceDistanceFromLeftSide = 70;
+                differenceDistanceFromLeftSide = 52.5;
             }
 
             graticuleTextHolder.selectAll('text').data(graticule.lines())
@@ -208,7 +208,13 @@
 
                     return 'translate(' + (p[0] + width / 2 + differenceDistanceFromLeftSide) + ', ' + (p[1]) + ')';
                 })
-                .style('font-size', '1.3rem')
+                .style('font-size', function () {
+                    if (window.innerWidth <= 850) {
+                        return '1rem';
+                    } else {
+                        return '1.3rem';
+                    }
+                })
                 .style('font-weight', 700);
 
             /* bit messy, but it gets the job done, removing the unused graticule labels and lines */
@@ -258,7 +264,7 @@
 
         data.forEach((d) => {
             chartContainer.select('.chartHolder').select('.country#' + d.Code)
-                .on('mouseenter touchstart', function () {
+                .on('mouseenter touchmove', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
 
                     tooltip.select('.tooltip--heading')
