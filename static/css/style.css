@@ -389,10 +389,14 @@ body > div.overlay {
       #par3 svg:nth-of-type(3) {
         height: 12.5rem;
         width: 25rem; } }
+  @media screen and (max-width: 1350px) {
+    #par3 {
+      margin-top: 2.5rem; } }
   @media screen and (max-width: 1100px) {
     #par3 {
       grid-row: span 2;
-      flex-wrap: wrap; }
+      flex-wrap: wrap;
+      margin-top: 1.5rem; }
       #par3 p {
         max-width: 30rem; }
         #par3 p:nth-of-type(2) {
