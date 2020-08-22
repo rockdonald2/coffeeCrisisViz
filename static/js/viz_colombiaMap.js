@@ -174,7 +174,7 @@
 
         data.forEach(function (d) {
             chartContainer.select('.chartHolder').select('.region#' + d.Region.toUpperCase())
-                .on('mouseenter touchmove', function () {
+                .on('mouseenter touchstart', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
 
                     tooltip.select('.tooltip--heading').html(d.Region).style('background-color', function () {
@@ -186,7 +186,7 @@
                         if (d.Value === null) {
                             return 'There was no data for that period';
                         } else {
-                            return d.Value.toFixed(2) + ' million hectares of coffee land';
+                            return '<span class="tooltip--emphasize">' + d.Value.toFixed(2) + '</span> million hectares of coffee land';
                         }
                     });
                 })

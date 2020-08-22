@@ -49,8 +49,11 @@
         } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
             centerPoz = [225, -40];
             scalePoz = 100;
+        } else if (window.innerWidth > 400 && window.innerWidth <= 475) {
+            centerPoz = [679, -40];
+            scalePoz = 82.5;
         } else {
-            centerPoz = [681.5, -40];
+            centerPoz = [705, -40];
             scalePoz = 82.5;
         }
         const projection = d3.geoNaturalEarth1().center(centerPoz).scale(scalePoz);
@@ -205,7 +208,7 @@
 
         dataExport.forEach(function (d) {
             chartContainer.select('.chartHolder').select('.country#' + d.Code)
-                .on('mouseenter', function () {
+                .on('mouseenter touchstart', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
 
                     tooltip.select('.tooltip--heading')
@@ -213,7 +216,7 @@
                         .style('background-color', colorScale('Exporting')).style('color', '#fafafa');
                     tooltip.select('.tooltip--info')
                         .html(function () {
-                            if (d.Value === null) {
+                            if (d.Value === 0) {
                                 return 'There was no data for that period'
                             } else {
                                 return 'Their total exports in ' + year + ' was <span class="tooltip--emphasize">' + (d.Value.toFixed(2)) + '</span> thousands 60kg bags.'
@@ -227,11 +230,10 @@
                         tooltip.style('left', (d3.event.pageX + 20) + 'px');
                     }
                     tooltip.style('top', (d3.event.pageY + 20) + 'px');
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 1);
                 })
-                .on('mouseleave', function () {
+                .on('mouseleave touchend', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', colorScale('Exporting'));
-                    tooltip.transition().duration(viz.TRANS_DURATION / 7).style('opacity', 0);
+                    tooltip.style('left', '-9999px');
                 })
                 .transition().duration(viz.TRANS_DURATION)
                 .attr('fill', colorScale('Exporting'));
@@ -239,7 +241,7 @@
 
         dataImport.forEach(function (d) {
             chartContainer.select('.chartHolder').selectAll('.country#' + d.Code)
-                .on('mouseenter touchmove', function () {
+                .on('mouseenter touchstart', function () {
                     const curr = d3.select(this);
 
                     if (curr.attr('id') === 'EAU') {

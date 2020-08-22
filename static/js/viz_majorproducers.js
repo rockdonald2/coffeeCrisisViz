@@ -50,8 +50,11 @@
         } else if (window.innerWidth > 475 && window.innerWidth <= 625) {
             centerPoz = [210, -10];
             scalePoz = 90;
-        } else {
+        } else if (window.innerWidth > 400 && window.innerWidth <= 475) {
             centerPoz = [280, -10];
+            scalePoz = 75;
+        } else {
+            centerPoz = [295, -10];
             scalePoz = 75;
         }
         const projection = d3.geoMercator().center(centerPoz).scale(scalePoz);
@@ -266,7 +269,7 @@
 
         data.forEach((d) => {
             chartContainer.select('.chartHolder').select('.country#' + d.Code)
-                .on('mouseenter touchmove', function () {
+                .on('mouseenter touchstart', function () {
                     d3.select(this).transition().duration(viz.TRANS_DURATION / 5).attr('fill', '#222');
 
                     tooltip.select('.tooltip--heading')

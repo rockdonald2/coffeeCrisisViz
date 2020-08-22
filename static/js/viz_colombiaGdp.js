@@ -120,7 +120,7 @@
                 .attr('height', function (d) {
                     return scalePerc(d[0]) - scalePerc(d[1]);
                 })
-                .on('mouseenter touchmove', function (d) {
+                .on('mouseenter touchstart', function (d) {
                     chartHolder.selectAll('.rect').transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 0.5);
                     chartHolder.selectAll('.rect__' + d.key).transition().duration(viz.TRANS_DURATION / 6).attr('opacity', 1);
 

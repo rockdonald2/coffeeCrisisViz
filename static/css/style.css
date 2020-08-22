@@ -555,7 +555,9 @@ body > div.overlay {
 
 #par8 {
   grid-column: 2 / -1;
-  margin: 2rem auto 0 auto; }
+  margin: 2rem auto 0 auto;
+  display: flex;
+  align-items: center; }
   @media screen and (max-width: 1350px) {
     #par8 {
       margin: 3.5rem auto 0 auto; } }
@@ -602,7 +604,8 @@ body > div.overlay {
       flex-direction: column;
       grid-row: unset; }
       #par9 p {
-        margin: 0 auto; }
+        margin: 0 auto;
+        /* max-width: 50rem; */ }
         #par9 p:not(:first-of-type) {
           margin-top: 2rem;
           margin-left: auto; } }

@@ -22,9 +22,9 @@
     const years = d3.timeYear.range(new Date(1990, 0, 1), new Date(2019, 0, 1), 1);
 
     function hover(rect, svg, path, data, scaleTime, scaleValue, dimensions, years) {
-        rect.on('touchmove mousemove', moved)
-            .on('touchstart mouseenter', entered)
-            .on('touchend mouseleave', left);
+        rect.on('mousemove', moved)
+            .on('mouseenter', entered)
+            .on('mouseleave', left);
 
         const dot = svg.append('g')
             .attr('display', 'none').style('pointer-events', 'none');
